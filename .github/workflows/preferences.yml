@@ -1,0 +1,80 @@
+name: Save preferences
+
+# Fires when you submit (or edit) the Job preferences quiz.
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: write
+  issues: write
+  actions: write   # start a fresh scan with the new preferences
+
+concurrency:
+  group: job-radar-preferences
+  cancel-in-progress: false
+
+jobs:
+  save:
+    # The title check is a backup: GitHub drops a form's label if the label doesn't exist yet.
+    if: github.event.sender.login == github.repository_owner && (contains(github.event.issue.labels.*.name, 'preferences') || github.event.issue.title == 'Job preferences quiz')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main   # the newest saved data, not the commit that started this run
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Save quiz answers
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m jobradar.preferences
+      - name: Save results
+        run: |
+          git config user.name "job-radar[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          branch=$(git rev-parse --abbrev-ref HEAD)
+          for attempt in 1 2 3; do
+            git add -A profile.yml data/jobs.json data/health data/mcp
+            git diff --cached --quiet && exit 0
+            git commit -q -m "Preferences updated from quiz #${{ github.event.issue.number }}"
+            git push -q && exit 0
+            # Another update saved first: merge the job list, keep the new profile.
+            cp data/jobs.json "$RUNNER_TEMP/ours.json"; cp profile.yml "$RUNNER_TEMP/profile.yml"
+            cp -r data/health "$RUNNER_TEMP/" 2>/dev/null || true
+            git fetch -q origin "$branch" && git reset -q --hard "origin/$branch"
+            cp -r "$RUNNER_TEMP/health" data/ 2>/dev/null || true
+            cp "$RUNNER_TEMP/profile.yml" profile.yml
+            python -m jobradar.merge "$RUNNER_TEMP/ours.json"
+            python -m jobradar.lastmile --refresh || true
+            python -m jobradar.health --write > /dev/null || true
+          done
+          exit 1
+      - name: Start a fresh scan with the new answers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X POST "repos/${{ github.repository }}/actions/workflows/scan.yml/dispatches" -f ref=main
+      - name: If anything above failed, alert and keep the health log
+        if: failure()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 jobradar/failsafe.py || true
+          [ -d data/health ] || exit 0
+          git config user.name "job-radar[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          branch=$(git rev-parse --abbrev-ref HEAD)
+          cp -r data/health "$RUNNER_TEMP/" 2>/dev/null || true
+          for attempt in 1 2 3; do
+            git fetch -q origin "$branch" && git reset -q --hard "origin/$branch" || exit 0
+            cp -r "$RUNNER_TEMP/health" data/ 2>/dev/null || true
+            git add -A data/health
+            git diff --cached --quiet && exit 0
+            git commit -q -m "Health log: failed run" && git push -q && exit 0
+          done

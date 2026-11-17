@@ -1,0 +1,550 @@
+{
+  "companies": {
+    "copperline labs": {
+      "as_of": "sample data",
+      "ceo": "",
+      "company_name": "Copperline Labs",
+      "cons": [
+        "Sample: fast pace"
+      ],
+      "discussions": [],
+      "fetched_at": "2026-11-17T23:41:49+00:00",
+      "pros": [
+        "Sample: supportive team",
+        "Sample: remote-friendly"
+      ],
+      "rating": "(fictional sample) 4.2/5",
+      "recommend": "(fictional sample) 81%",
+      "red_flags": [],
+      "sources": []
+    },
+    "lumen data": {
+      "as_of": "sample data",
+      "ceo": "",
+      "company_name": "Lumen Data",
+      "cons": [
+        "Sample: fast pace"
+      ],
+      "discussions": [],
+      "fetched_at": "2026-11-17T23:41:48+00:00",
+      "pros": [
+        "Sample: supportive team",
+        "Sample: remote-friendly"
+      ],
+      "rating": "(fictional sample) 4.2/5",
+      "recommend": "(fictional sample) 81%",
+      "red_flags": [],
+      "sources": []
+    },
+    "northwind ai": {
+      "as_of": "sample data",
+      "ceo": "",
+      "company_name": "Northwind AI",
+      "cons": [
+        "Sample: fast pace"
+      ],
+      "discussions": [],
+      "fetched_at": "2026-11-17T23:41:49+00:00",
+      "pros": [
+        "Sample: supportive team",
+        "Sample: remote-friendly"
+      ],
+      "rating": "(fictional sample) 4.2/5",
+      "recommend": "(fictional sample) 81%",
+      "red_flags": [],
+      "sources": []
+    }
+  },
+  "jobs": {
+    "ashby:northwind-ai:gtm-1": {
+      "company": "Northwind AI",
+      "company_snapshot": {
+        "as_of": "sample data",
+        "ceo": "",
+        "company_name": "Northwind AI",
+        "cons": [
+          "Sample: fast pace"
+        ],
+        "discussions": [],
+        "fetched_at": "2026-11-17T23:41:48+00:00",
+        "pros": [
+          "Sample: supportive team",
+          "Sample: remote-friendly"
+        ],
+        "rating": "(fictional sample) 4.2/5",
+        "recommend": "(fictional sample) 81%",
+        "red_flags": [],
+        "sources": []
+      },
+      "first_seen": "2026-11-17T23:41:48+00:00",
+      "gaps": [
+        "Sample gap: no Kubernetes"
+      ],
+      "history": [
+        {
+          "at": "2026-11-17T23:41:48+00:00",
+          "status": "new"
+        }
+      ],
+      "key": "ashby:northwind-ai:gtm-1",
+      "last_seen": "2026-11-17T23:41:48+00:00",
+      "location": "Remote, United States",
+      "materials": {
+        "answers": [],
+        "bullets": [
+          "Built REST API and webhook integration examples that cut evaluation setup time by 40%",
+          "Scope proof-of-concept success criteria and own each evaluation through customer sign-off",
+          "Automated meeting prep and follow-up emails with AI tools, saving 5 hours per week"
+        ],
+        "cold_call": "(Sample) Hi, this is Jordan Rivera. I build API and AI automations and run technical demos, and I just applied for your open role. Could I get 15 minutes this week to learn what success looks like on your team?",
+        "linkedin_note": "(Sample) Hi! I just applied for your open role. I build API and AI automations and run technical demos. Open to a quick chat?",
+        "why_company": "(Sample) Northwind AI is building exactly the kind of automation I like to demo and build. My integration and AI workflow experience maps directly to this role."
+      },
+      "pay_max": 165000,
+      "pay_min": 135000,
+      "pay_text": "$135,000 - $165,000",
+      "posted": "2026-11-15",
+      "remote": true,
+      "role_family": "gtm engineer",
+      "rules_reasons": [
+        "skills match 9/9: ai-llm, api-integrations, automation, crm, poc-demos",
+        "role type #1 on your list",
+        "pay meets your minimum"
+      ],
+      "rules_score": 100,
+      "rules_tags": [
+        "ai-llm",
+        "api-integrations",
+        "automation",
+        "crm",
+        "poc-demos",
+        "python",
+        "sql",
+        "technical-discovery",
+        "webhooks"
+      ],
+      "score": 9,
+      "scored_at": "2026-11-17T23:41:48+00:00",
+      "scored_by": "claude-mcp",
+      "source": "ashby",
+      "status": "interviewing",
+      "strengths": [
+        "REST APIs and webhooks",
+        "Demos and proofs of concept"
+      ],
+      "summary": "Sample score: GTM Engineer fits the fictional candidate's APIs, demos and automation experience.",
+      "tags": [
+        "api-integrations",
+        "automation",
+        "poc-demos",
+        "webhooks"
+      ],
+      "tailored_resume": {
+        "changed_bullets": 1,
+        "changes": "Led with APIs, webhooks and automation.",
+        "docx": "resumes/f7f40e/Jordan_Rivera_Resume.docx",
+        "dropped_for_length": 0,
+        "missing": [
+          "Kubernetes"
+        ],
+        "pdf": "resumes/f7f40e/Jordan_Rivera_Resume.pdf",
+        "rejected_for_safety": 0,
+        "reused": false,
+        "summary_changed": true,
+        "variant": "f7f40e"
+      },
+      "title": "GTM Engineer",
+      "url": "https://example.com/jobs/northwind-ai/gtm-1",
+      "workplace": "remote"
+    },
+    "ashby:northwind-ai:gtm-2": {
+      "company": "Northwind AI",
+      "company_snapshot": {
+        "as_of": "sample data",
+        "ceo": "",
+        "company_name": "Northwind AI",
+        "cons": [
+          "Sample: fast pace"
+        ],
+        "discussions": [],
+        "fetched_at": "2026-11-17T23:41:49+00:00",
+        "pros": [
+          "Sample: supportive team",
+          "Sample: remote-friendly"
+        ],
+        "rating": "(fictional sample) 4.2/5",
+        "recommend": "(fictional sample) 81%",
+        "red_flags": [],
+        "sources": []
+      },
+      "first_seen": "2026-11-17T23:41:48+00:00",
+      "gaps": [
+        "Sample gap: no Kubernetes"
+      ],
+      "history": [
+        {
+          "at": "2026-11-17T23:41:49+00:00",
+          "status": "new"
+        }
+      ],
+      "key": "ashby:northwind-ai:gtm-2",
+      "last_seen": "2026-11-17T23:41:48+00:00",
+      "location": "Austin, TX",
+      "materials": {
+        "answers": [],
+        "bullets": [
+          "Built REST API and webhook integration examples that cut evaluation setup time by 40%",
+          "Scope proof-of-concept success criteria and own each evaluation through customer sign-off",
+          "Automated meeting prep and follow-up emails with AI tools, saving 5 hours per week"
+        ],
+        "cold_call": "(Sample) Hi, this is Jordan Rivera. I build API and AI automations and run technical demos, and I just applied for your open role. Could I get 15 minutes this week to learn what success looks like on your team?",
+        "linkedin_note": "(Sample) Hi! I just applied for your open role. I build API and AI automations and run technical demos. Open to a quick chat?",
+        "why_company": "(Sample) Northwind AI is building exactly the kind of automation I like to demo and build. My integration and AI workflow experience maps directly to this role."
+      },
+      "pay_max": 150000,
+      "pay_min": 125000,
+      "pay_text": "$125,000 - $150,000",
+      "posted": "2026-11-12",
+      "remote": false,
+      "role_family": "gtm engineer",
+      "rules_reasons": [
+        "skills match 9/9: ai-llm, api-integrations, automation, crm, poc-demos",
+        "role type #1 on your list",
+        "pay meets your minimum"
+      ],
+      "rules_score": 98,
+      "rules_tags": [
+        "ai-llm",
+        "api-integrations",
+        "automation",
+        "crm",
+        "poc-demos",
+        "python",
+        "sql",
+        "technical-discovery",
+        "webhooks"
+      ],
+      "score": 7,
+      "scored_at": "2026-11-17T23:41:48+00:00",
+      "scored_by": "claude-mcp",
+      "source": "ashby",
+      "status": "new",
+      "strengths": [
+        "REST APIs and webhooks",
+        "Demos and proofs of concept"
+      ],
+      "summary": "Sample score: GTM Systems Engineer fits the fictional candidate's APIs, demos and automation experience.",
+      "tags": [
+        "api-integrations",
+        "automation",
+        "poc-demos",
+        "webhooks"
+      ],
+      "tailored_resume": {
+        "changes": "Led with APIs, webhooks and automation.",
+        "docx": "resumes/f7f40e/Jordan_Rivera_Resume.docx",
+        "made_for": "GTM Engineer at Northwind AI",
+        "pdf": "resumes/f7f40e/Jordan_Rivera_Resume.pdf",
+        "reused": true,
+        "similarity": 1.0,
+        "variant": "f7f40e"
+      },
+      "title": "GTM Systems Engineer",
+      "url": "https://example.com/jobs/northwind-ai/gtm-2",
+      "workplace": "hybrid"
+    },
+    "ashby:northwind-ai:se-3": {
+      "company": "Northwind AI",
+      "first_seen": "2026-11-17T23:41:48+00:00",
+      "gaps": [
+        "Sample gap: no Kubernetes"
+      ],
+      "key": "ashby:northwind-ai:se-3",
+      "last_seen": "2026-11-17T23:41:48+00:00",
+      "location": "Austin, TX",
+      "pay_max": 145000,
+      "pay_min": 118000,
+      "pay_text": "$118,000 - $145,000",
+      "posted": "2026-11-05",
+      "questions": [],
+      "remote": false,
+      "role_family": "sales engineer",
+      "rules_reasons": [
+        "skills match 5/6: api-integrations, devtools, poc-demos, technical-discovery, webhooks",
+        "role type #3 on your list",
+        "pay meets your minimum"
+      ],
+      "rules_score": 82,
+      "rules_tags": [
+        "api-integrations",
+        "devtools",
+        "poc-demos",
+        "security",
+        "technical-discovery",
+        "webhooks"
+      ],
+      "score": 6,
+      "scored_at": "2026-11-17T23:41:48+00:00",
+      "scored_by": "claude-mcp",
+      "source": "ashby",
+      "strengths": [
+        "REST APIs and webhooks",
+        "Demos and proofs of concept"
+      ],
+      "summary": "Sample score: a partial fit for Solutions Engineer.",
+      "tags": [
+        "api-integrations",
+        "automation",
+        "poc-demos",
+        "webhooks"
+      ],
+      "title": "Solutions Engineer",
+      "url": "https://example.com/jobs/northwind-ai/se-3",
+      "workplace": "hybrid"
+    },
+    "greenhouse:lumen-data:301": {
+      "company": "Lumen Data",
+      "company_snapshot": {
+        "as_of": "sample data",
+        "ceo": "",
+        "company_name": "Lumen Data",
+        "cons": [
+          "Sample: fast pace"
+        ],
+        "discussions": [],
+        "fetched_at": "2026-11-17T23:41:48+00:00",
+        "pros": [
+          "Sample: supportive team",
+          "Sample: remote-friendly"
+        ],
+        "rating": "(fictional sample) 4.2/5",
+        "recommend": "(fictional sample) 81%",
+        "red_flags": [],
+        "sources": []
+      },
+      "first_seen": "2026-11-17T23:41:48+00:00",
+      "gaps": [
+        "Sample gap: no Kubernetes"
+      ],
+      "history": [
+        {
+          "at": "2026-11-17T23:41:49+00:00",
+          "status": "new"
+        }
+      ],
+      "key": "greenhouse:lumen-data:301",
+      "last_seen": "2026-11-17T23:41:48+00:00",
+      "location": "Remote - US",
+      "materials": {
+        "answers": [
+          {
+            "answer": "(Sample answer from the resume.)",
+            "question": "Why are you interested in this role?"
+          },
+          {
+            "answer": "Yes",
+            "question": "Are you authorized to work in the US?"
+          }
+        ],
+        "bullets": [
+          "Built REST API and webhook integration examples that cut evaluation setup time by 40%",
+          "Scope proof-of-concept success criteria and own each evaluation through customer sign-off",
+          "Automated meeting prep and follow-up emails with AI tools, saving 5 hours per week"
+        ],
+        "cold_call": "(Sample) Hi, this is Jordan Rivera. I build API and AI automations and run technical demos, and I just applied for your open role. Could I get 15 minutes this week to learn what success looks like on your team?",
+        "linkedin_note": "(Sample) Hi! I just applied for your open role. I build API and AI automations and run technical demos. Open to a quick chat?",
+        "why_company": "(Sample) Lumen Data is building exactly the kind of automation I like to demo and build. My integration and AI workflow experience maps directly to this role."
+      },
+      "pay_max": 150000,
+      "pay_min": 120000,
+      "pay_text": "$120,000 - $150,000",
+      "posted": "2026-11-14",
+      "remote": true,
+      "role_family": "sales engineer",
+      "rules_reasons": [
+        "skills match 6/7: api-integrations, cloud, mid-market, poc-demos, sql",
+        "role type #2 on your list",
+        "pay meets your minimum"
+      ],
+      "rules_score": 91,
+      "rules_tags": [
+        "analytics",
+        "api-integrations",
+        "cloud",
+        "mid-market",
+        "poc-demos",
+        "sql",
+        "technical-discovery"
+      ],
+      "score": 8,
+      "scored_at": "2026-11-17T23:41:48+00:00",
+      "scored_by": "claude-mcp",
+      "source": "greenhouse",
+      "status": "applied",
+      "strengths": [
+        "REST APIs and webhooks",
+        "Demos and proofs of concept"
+      ],
+      "summary": "Sample score: Solutions Consultant, Mid-Market fits the fictional candidate's APIs, demos and automation experience.",
+      "tags": [
+        "api-integrations",
+        "automation",
+        "poc-demos",
+        "webhooks"
+      ],
+      "tailored_resume": {
+        "changed_bullets": 1,
+        "changes": "Led with APIs, webhooks and automation.",
+        "docx": "resumes/5fa96c/Jordan_Rivera_Resume.docx",
+        "dropped_for_length": 0,
+        "missing": [
+          "Kubernetes"
+        ],
+        "pdf": "resumes/5fa96c/Jordan_Rivera_Resume.pdf",
+        "rejected_for_safety": 0,
+        "reused": false,
+        "summary_changed": true,
+        "variant": "5fa96c"
+      },
+      "title": "Solutions Consultant, Mid-Market",
+      "url": "https://example.com/jobs/lumen-data/301",
+      "workplace": "remote"
+    },
+    "lever:copperline:c-11": {
+      "company": "Copperline Labs",
+      "company_snapshot": {
+        "as_of": "sample data",
+        "ceo": "",
+        "company_name": "Copperline Labs",
+        "cons": [
+          "Sample: fast pace"
+        ],
+        "discussions": [],
+        "fetched_at": "2026-11-17T23:41:49+00:00",
+        "pros": [
+          "Sample: supportive team",
+          "Sample: remote-friendly"
+        ],
+        "rating": "(fictional sample) 4.2/5",
+        "recommend": "(fictional sample) 81%",
+        "red_flags": [],
+        "sources": []
+      },
+      "first_seen": "2026-11-17T23:41:48+00:00",
+      "gaps": [
+        "Sample gap: no Kubernetes"
+      ],
+      "history": [
+        {
+          "at": "2026-11-17T23:41:49+00:00",
+          "status": "new"
+        }
+      ],
+      "key": "lever:copperline:c-11",
+      "last_seen": "2026-11-17T23:41:48+00:00",
+      "location": "Remote, United States",
+      "materials": {
+        "answers": [],
+        "bullets": [
+          "Built REST API and webhook integration examples that cut evaluation setup time by 40%",
+          "Scope proof-of-concept success criteria and own each evaluation through customer sign-off",
+          "Automated meeting prep and follow-up emails with AI tools, saving 5 hours per week"
+        ],
+        "cold_call": "(Sample) Hi, this is Jordan Rivera. I build API and AI automations and run technical demos, and I just applied for your open role. Could I get 15 minutes this week to learn what success looks like on your team?",
+        "linkedin_note": "(Sample) Hi! I just applied for your open role. I build API and AI automations and run technical demos. Open to a quick chat?",
+        "why_company": "(Sample) Copperline Labs is building exactly the kind of automation I like to demo and build. My integration and AI workflow experience maps directly to this role."
+      },
+      "pay_max": 140000,
+      "pay_min": 115000,
+      "pay_text": "$115,000 - $140,000",
+      "posted": "2026-11-11",
+      "remote": true,
+      "role_family": "sales engineer",
+      "rules_reasons": [
+        "skills match 5/6: api-integrations, devtools, poc-demos, technical-discovery, webhooks",
+        "role type #3 on your list",
+        "pay meets your minimum"
+      ],
+      "rules_score": 85,
+      "rules_tags": [
+        "api-integrations",
+        "devtools",
+        "poc-demos",
+        "security",
+        "technical-discovery",
+        "webhooks"
+      ],
+      "score": 7,
+      "scored_at": "2026-11-17T23:41:48+00:00",
+      "scored_by": "claude-mcp",
+      "source": "lever",
+      "status": "new",
+      "strengths": [
+        "REST APIs and webhooks",
+        "Demos and proofs of concept"
+      ],
+      "summary": "Sample score: Sales Engineer fits the fictional candidate's APIs, demos and automation experience.",
+      "tags": [
+        "api-integrations",
+        "automation",
+        "poc-demos",
+        "webhooks"
+      ],
+      "tailored_resume": {
+        "changes": "Led with APIs, webhooks and automation.",
+        "docx": "resumes/5fa96c/Jordan_Rivera_Resume.docx",
+        "made_for": "Solutions Consultant, Mid-Market at Lumen Data",
+        "pdf": "resumes/5fa96c/Jordan_Rivera_Resume.pdf",
+        "reused": true,
+        "similarity": 1.0,
+        "variant": "5fa96c"
+      },
+      "title": "Sales Engineer",
+      "url": "https://example.com/jobs/copperline/c-11",
+      "workplace": "remote"
+    }
+  },
+  "mcp": {
+    "last_submission": "2026-11-17T23:41:49+00:00"
+  },
+  "resume_variants": {
+    "5fa96c": {
+      "changes": "Led with APIs, webhooks and automation.",
+      "created": "2026-11-17T23:41:49+00:00",
+      "docx": "resumes/5fa96c/Jordan_Rivera_Resume.docx",
+      "made_for": "Solutions Consultant, Mid-Market at Lumen Data",
+      "made_for_key": "greenhouse:lumen-data:301",
+      "pdf": "resumes/5fa96c/Jordan_Rivera_Resume.pdf",
+      "role_family": "sales engineer",
+      "tags": [
+        "api-integrations",
+        "automation",
+        "poc-demos",
+        "webhooks"
+      ],
+      "used_by": [
+        "greenhouse:lumen-data:301",
+        "lever:copperline:c-11"
+      ]
+    },
+    "f7f40e": {
+      "changes": "Led with APIs, webhooks and automation.",
+      "created": "2026-11-17T23:41:48+00:00",
+      "docx": "resumes/f7f40e/Jordan_Rivera_Resume.docx",
+      "made_for": "GTM Engineer at Northwind AI",
+      "made_for_key": "ashby:northwind-ai:gtm-1",
+      "pdf": "resumes/f7f40e/Jordan_Rivera_Resume.pdf",
+      "role_family": "gtm engineer",
+      "tags": [
+        "api-integrations",
+        "automation",
+        "poc-demos",
+        "webhooks"
+      ],
+      "used_by": [
+        "ashby:northwind-ai:gtm-1",
+        "ashby:northwind-ai:gtm-2"
+      ]
+    }
+  }
+}

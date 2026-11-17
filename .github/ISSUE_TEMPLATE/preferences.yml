@@ -1,0 +1,135 @@
+name: Job preferences quiz
+description: Tell Job Radar what you want. Takes about 5 minutes; retake it any time.
+title: "Job preferences quiz"
+labels: ["preferences"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Your answers decide which jobs Job Radar keeps, how Claude scores them, and what goes in each
+        application kit. They're saved to `profile.yml` in this private repo when you submit.
+        Leave anything blank that you don't want used.
+
+  - type: input
+    id: full_name
+    attributes: {label: Full name}
+  - type: input
+    id: email
+    attributes: {label: Email for applications}
+  - type: input
+    id: phone
+    attributes: {label: Phone}
+  - type: input
+    id: linkedin
+    attributes: {label: LinkedIn URL}
+  - type: input
+    id: github
+    attributes: {label: GitHub or portfolio URL (optional)}
+  - type: input
+    id: city
+    attributes: {label: Where you live (city and state)}
+
+  - type: checkboxes
+    id: work_arrangements
+    attributes:
+      label: Work arrangements you'd accept
+      options:
+        - label: Remote
+        - label: Hybrid
+        - label: On-site
+  - type: dropdown
+    id: remote_scope
+    attributes:
+      label: Remote jobs based where?
+      options: ["US only", "Anywhere in the world"]
+  - type: textarea
+    id: areas
+    attributes:
+      label: Cities or states for hybrid and on-site jobs
+      description: One per line or comma-separated, e.g. Austin, San Marcos, Round Rock, Austin
+  - type: dropdown
+    id: relocation
+    attributes:
+      label: Open to relocating?
+      options: ["No", "Yes, anywhere in the US", "Yes, for the right role"]
+
+  - type: input
+    id: min_base
+    attributes:
+      label: Minimum base salary (USD)
+      description: Jobs that post a pay range entirely below this are skipped. Example 120000
+  - type: input
+    id: target_ote
+    attributes:
+      label: Target total compensation / OTE (USD)
+      description: Example 170000
+  - type: input
+    id: salary_answer
+    attributes:
+      label: What to put when an application asks your salary expectations
+      description: Example "$130K–$150K base, flexible on total package"
+
+  - type: checkboxes
+    id: role_types
+    attributes:
+      label: Roles to search for
+      options:
+        - label: Sales / Solutions Engineer
+        - label: Solutions Architect / Consultant
+        - label: GTM / Growth Engineer
+        - label: Forward Deployed / Implementation Engineer
+        - label: Account Executive
+  - type: checkboxes
+    id: seniority
+    attributes:
+      label: Seniority levels
+      options:
+        - label: Entry / Associate
+        - label: Mid-level
+        - label: Senior
+        - label: Lead / Staff / Principal
+  - type: checkboxes
+    id: company_sizes
+    attributes:
+      label: Company sizes you like
+      options:
+        - label: Startup (under 50)
+        - label: Growth (50–500)
+        - label: Mid-size (500–5,000)
+        - label: Enterprise (5,000+)
+  - type: textarea
+    id: industries_want
+    attributes: {label: Industries or products you're excited about}
+  - type: textarea
+    id: industries_avoid
+    attributes: {label: Industries to avoid}
+  - type: dropdown
+    id: travel
+    attributes:
+      label: How much travel is OK?
+      options: ["No travel", "Up to 10%", "Up to 25%", "Up to 50%", "Any"]
+
+  - type: dropdown
+    id: work_authorization
+    attributes:
+      label: Work authorization
+      options: ["Authorized to work in the US", "Not yet authorized to work in the US"]
+  - type: dropdown
+    id: needs_sponsorship
+    attributes:
+      label: Will you need visa sponsorship now or in the future?
+      options: ["No", "Yes"]
+  - type: dropdown
+    id: start_date
+    attributes:
+      label: When could you start?
+      options: ["Immediately", "Two weeks after an offer", "One month after an offer", "Flexible"]
+
+  - type: textarea
+    id: deal_breakers
+    attributes: {label: Deal-breakers}
+  - type: textarea
+    id: companies
+    attributes:
+      label: Dream companies to watch (paste a link to any of their job postings)
+      description: Links from jobs.ashbyhq.com, boards.greenhouse.io or jobs.lever.co are added automatically, one per line.

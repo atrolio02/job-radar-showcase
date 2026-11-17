@@ -1,0 +1,79 @@
+name: Apply Claude's work
+
+# Claude (through the Job Radar MCP server) saves its scores and kits as new files in
+# data/mcp/incoming/. Each push of one starts this workflow, which checks them and
+# turns them into tracker cards, tailored resume PDFs and Discord alerts. No AI runs here.
+on:
+  push:
+    branches: [main]
+    paths: ["data/mcp/incoming/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # save data/jobs.json, the dashboard and resume PDFs
+  issues: write     # open tracker cards
+
+concurrency:
+  group: job-radar-lastmile  # one at a time; each run handles every waiting submission
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main   # the newest saved data, not the commit that started this run
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Check Claude's submissions and build cards
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m jobradar.lastmile
+      - name: Save results
+        run: |
+          git config user.name "job-radar[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          branch=$(git rev-parse --abbrev-ref HEAD)
+          for attempt in 1 2 3; do
+            git add -A data/jobs.json README.md resumes data/health data/mcp
+            git diff --cached --quiet && exit 0
+            git commit -q -m "Applied Claude's work $(date -u +%F)"
+            git push -q && exit 0
+            # Another update saved first: merge both versions so nothing is lost.
+            cp data/jobs.json "$RUNNER_TEMP/ours.json"; cp -r resumes "$RUNNER_TEMP/" 2>/dev/null || true
+            cp -r data/health "$RUNNER_TEMP/" 2>/dev/null || true
+            git fetch -q origin "$branch" && git reset -q --hard "origin/$branch"
+            cp -r "$RUNNER_TEMP/health" data/ 2>/dev/null || true
+            cp -r "$RUNNER_TEMP/resumes" . 2>/dev/null || true
+            python -m jobradar.merge "$RUNNER_TEMP/ours.json"
+            # The submissions handled above are back after the reset: remove them again.
+            while read -r f; do [ -n "$f" ] && rm -f "$f"; done < "$RUNNER_TEMP/processed.txt" 2>/dev/null || true
+            python -m jobradar.lastmile --refresh || true
+            python -m jobradar.health --write > /dev/null || true
+          done
+          exit 1
+      - name: If anything above failed, alert and keep the health log
+        if: failure()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 jobradar/failsafe.py || true
+          [ -d data/health ] || exit 0
+          git config user.name "job-radar[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          branch=$(git rev-parse --abbrev-ref HEAD)
+          cp -r data/health "$RUNNER_TEMP/" 2>/dev/null || true
+          for attempt in 1 2 3; do
+            git fetch -q origin "$branch" && git reset -q --hard "origin/$branch" || exit 0
+            cp -r "$RUNNER_TEMP/health" data/ 2>/dev/null || true
+            git add -A data/health
+            git diff --cached --quiet && exit 0
+            git commit -q -m "Health log: failed run" && git push -q && exit 0
+          done

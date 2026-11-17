@@ -1,0 +1,80 @@
+name: Deploy MCP server
+
+# Tests the Job Radar MCP server, then deploys it to Cloudflare Workers.
+# Runs when its code changes, or from the Actions tab (Run workflow) after you add or change a secret.
+on:
+  push:
+    branches: [main]
+    paths: ["mcp-server/**", ".github/workflows/deploy-mcp.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write   # lets the failure alert open a radar-error issue
+
+concurrency:
+  group: job-radar-deploy-mcp
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: mcp-server
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      MCP_SECRET: ${{ secrets.MCP_SECRET }}
+      MCP_GITHUB_TOKEN: ${{ secrets.MCP_GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mcp-server/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Check the secrets are set
+        id: ready
+        run: |
+          # Pasted secrets often pick up a stray space or line break; strip them for every later step.
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID MCP_SECRET MCP_GITHUB_TOKEN; do
+            clean=$(printf '%s' "${!name}" | tr -d '[:space:]')
+            echo "::add-mask::$clean"
+            { echo "$name<<__END__"; echo "$clean"; echo "__END__"; } >> "$GITHUB_ENV"
+            printf -v "$name" '%s' "$clean"
+          done
+          case "$MCP_GITHUB_TOKEN" in github_pat_*|ghp_*) ;; *) [ -z "$MCP_GITHUB_TOKEN" ] || echo "::warning::MCP_GITHUB_TOKEN doesn't look like a GitHub token (it should start with github_pat_)." ;; esac
+          case "$CLOUDFLARE_ACCOUNT_ID" in *[!0-9a-f]*) [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || echo "::warning::CLOUDFLARE_ACCOUNT_ID should be 32 letters and numbers. Check it was copied from Workers & Pages." ;; esac
+          missing=""
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID MCP_SECRET MCP_GITHUB_TOKEN; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::notice::Not deployed yet. Add these repository secrets:$missing (see docs/MCP_SERVER.md)."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          elif [ ${#MCP_SECRET} -lt 32 ]; then
+            echo "::error::MCP_SECRET must be at least 32 characters. Make one with: openssl rand -hex 32"
+            exit 1
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Deploy to Cloudflare
+        if: steps.ready.outputs.go == 'true'
+        run: |
+          npx wrangler deploy --var "GITHUB_REPO:${{ github.repository }}" --var "GITHUB_BRANCH:${{ github.ref_name }}"
+          printf '%s' "$MCP_SECRET" | npx wrangler secret put MCP_SECRET
+          printf '%s' "$MCP_GITHUB_TOKEN" | npx wrangler secret put GITHUB_TOKEN
+          echo "### MCP server deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "Connector URL: \`https://job-radar-mcp.<your-subdomain>.workers.dev/mcp/<MCP_SECRET>\` (find the subdomain in Cloudflare → Workers & Pages)." >> "$GITHUB_STEP_SUMMARY"
+      - name: If anything above failed, alert
+        if: failure()
+        working-directory: .
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 jobradar/failsafe.py || true

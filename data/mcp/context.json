@@ -1,0 +1,93 @@
+{
+ "updated": "2026-11-17T23:41:49+00:00",
+ "resume": "JORDAN RIVERA 555-0142 | jordan.rivera@example.com | linkedin.com/in/example-profile | github.com/example-user SUMMARY Solutions engineer who pairs technical depth in APIs, integrations, and cloud platforms with full-cycle sales experience. Turns customer problems into tailored demos and proofs of concept, helping close $940K in new business at Kestrel Systems. Builds AI-driven workflows and automations that save teams hours every week. EXPERIENCE Brightwave Software, Austin, TX Fictional workflow automation platform for mid-market operations teams Solutions Engineer June 2025 – Present • Run technical discovery and tailored demos for mid-market prospects alongside account executives • Scope proof-of-concept success criteria and own each evaluation through customer sign-off • Built REST API and webhook integration examples that cut evaluation setup time by 40% • Partner with onboarding teams to hand off technical implementation plans for new customers Kestrel Systems, Round Rock, TX Fictional IT monitoring company serving healthcare and education customers Sales Development Representative August 2023 – June 2025 • Created 41 qualified opportunities worth $5.2M in pipeline across healthcare and education accounts • Helped close $940K in new business by preparing technical account research for each deal • Automated meeting prep and follow-up emails with AI tools, saving 5 hours per week SKILLS Technical: Python, SQL, REST APIs, webhooks, AWS, Linux, GitHub Actions AI & Automation: Claude, OpenAI, Zapier, prompt engineering, MCP Sales Tools: Salesforce, HubSpot, Gong, Outreach PROJECTS Job Radar (AI job-matching pipeline) 2026 – Present • Built a GitHub Actions pipeline that pulls jobs from three job-board APIs and an MCP server that lets Claude score fit EDUCATION State University (fictional), B.S. Information Systems May 2023",
+ "resume_parts": {
+  "summary": "Solutions engineer who pairs technical depth in APIs, integrations, and cloud platforms with full-cycle sales experience. Turns customer problems into tailored demos and proofs of concept, helping close $940K in new business at Kestrel Systems. Builds AI-driven workflows and automations that save teams hours every week.",
+  "bullets": [
+   {
+    "n": 0,
+    "text": "Run technical discovery and tailored demos for mid-market prospects alongside account executives"
+   },
+   {
+    "n": 1,
+    "text": "Scope proof-of-concept success criteria and own each evaluation through customer sign-off"
+   },
+   {
+    "n": 2,
+    "text": "Built REST API and webhook integration examples that cut evaluation setup time by 40%"
+   },
+   {
+    "n": 3,
+    "text": "Partner with onboarding teams to hand off technical implementation plans for new customers"
+   },
+   {
+    "n": 4,
+    "text": "Created 41 qualified opportunities worth $5.2M in pipeline across healthcare and education accounts"
+   },
+   {
+    "n": 5,
+    "text": "Helped close $940K in new business by preparing technical account research for each deal"
+   },
+   {
+    "n": 6,
+    "text": "Automated meeting prep and follow-up emails with AI tools, saving 5 hours per week"
+   },
+   {
+    "n": 7,
+    "text": "Built a GitHub Actions pipeline that pulls jobs from three job-board APIs and an MCP server that lets Claude score fit"
+   }
+  ]
+ },
+ "preferences": "Role types, most wanted first: GTM / Growth Engineer > Solutions Architect / Consultant > Sales / Solutions Engineer (when two jobs fit equally well, score the more wanted role type higher)\nWork arrangements wanted: remote, hybrid\nPreferred areas for hybrid/on-site: austin, round rock, cedar park, pflugerville\nOpen to relocation: no\nMinimum base salary: $110,000\nTarget total compensation (OTE): $135,000\nSeniority: Entry / Associate, Mid-level\nIndustries wanted: AI software, developer tools, data platforms\nTravel tolerance: Up to 25%\nDeal-breakers: commission only, 75% travel, relocation required",
+ "candidate_facts": "Lives in: Austin Texas\nWork authorization: Authorized to work in the US\nNeeds visa sponsorship: No\nCan start: Two weeks' notice\nOpen to relocation: No\nTravel OK: Up to 25%\nLinkedIn: https://linkedin.com/in/example-profile\nGitHub/portfolio: https://github.com/example-user",
+ "alert_min_score": 7,
+ "role_families": [
+  "sales engineer",
+  "solutions architect",
+  "gtm engineer",
+  "implementation",
+  "account executive",
+  "other"
+ ],
+ "tags": [
+  "api-integrations",
+  "webhooks",
+  "crm",
+  "salesforce",
+  "security",
+  "endpoint-management",
+  "networking",
+  "cloud",
+  "aws",
+  "data-warehouse",
+  "sql",
+  "analytics",
+  "ai-llm",
+  "automation",
+  "devtools",
+  "observability",
+  "payments-fintech",
+  "hr-payroll",
+  "martech",
+  "communications-sms",
+  "home-services",
+  "healthcare",
+  "smb",
+  "mid-market",
+  "enterprise",
+  "poc-demos",
+  "technical-discovery",
+  "onboarding",
+  "python",
+  "prospecting",
+  "quota-carrying",
+  "travel"
+ ],
+ "instructions": {
+  "workflow": "1) Call get_jobs_to_score and score every job in it, then call submit_scores once with all of them. Its reply lists write_kits_now: your strong matches, with the full posting and application questions. 2) For each of those, write the application kit and call submit_application_kit once per job. 3) Call get_strong_matches and do the same for any job still listed there (older matches, jobs added by hand). Include research only when research_needed is true, and tailoring unless tailoring_needed is false. 4) Reply with a short summary: how many jobs you scored and which ones got kits.",
+  "scoring": "You are an experienced tech recruiter screening jobs for one candidate. Judge fit honestly using only what the resume shows, and weigh the candidate's stated preferences. Reply with JSON only. Score each job on how well it fits the candidate (resume and preferences in this briefing): both whether his experience matches what they need, and whether the job matches what he wants. 7+ means worth applying; at most 4 if it clearly hits a deal-breaker or pays well below his minimum. The rules_score is a free keyword pre-score; use your own judgment.",
+  "kit": "You help a sales engineer apply for jobs. Never invent experience, numbers, tools or employers: only reword what is in the resume to match the job's language. Reply with JSON only. Answer every application question from the resume and candidate facts. For a question with options, answer with one of the options exactly. If the facts don't cover it, answer \"[Fill in yourself]\". Skip demographic or voluntary self-identification questions. Bullets: 3, reworded from the resume to mirror the posting. why_company: 3-4 sentences. cold_call: about 80 words, asking the hiring leader for 15 minutes. linkedin_note: under 300 characters.",
+  "tailoring": "You tailor a resume to a job posting. Reword only; never add experience, employers, tools, certifications or numbers that aren't already in the resume, and never change a number. Never mention the hiring company's name: the same copy may be reused for similar jobs. Keep each rewrite about the same length as the original. Use the numbered bullets in resume_parts. Rewrite the summary and at most 6 bullets, each about the same length or shorter, then list up to 6 things the posting wants that the resume doesn't show (don't add them).",
+  "research": "You research employers for a job seeker. Use web search. Report only figures you actually find in search results, with the source and date; never estimate or fill gaps. Find the company's overall employee rating, CEO approval and recommend-to-a-friend figures (Glassdoor, Indeed, Comparably), common review themes, recent Reddit/X threads about working or interviewing there, and layoffs, lawsuits or leadership changes in the last year. Use \"\" or [] for anything you didn't find."
+ }
+}

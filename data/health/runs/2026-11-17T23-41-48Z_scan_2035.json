@@ -1,0 +1,78 @@
+{
+ "workflow": "scan",
+ "outcome": "ok",
+ "started": "2026-11-17T23:41:48+00:00",
+ "finished": "2026-11-17T23:41:48+00:00",
+ "seconds": 0.04,
+ "github_run": null,
+ "run_url": null,
+ "counts": {
+  "fetched": 8,
+  "matching": 5,
+  "scored": 0,
+  "new_matches": 0,
+  "waiting": 0,
+  "skipped_by_rules": 0,
+  "queued_for_claude": 5,
+  "kits_for_claude": 0,
+  "mode": "mcp",
+  "reused": 0,
+  "newly_queued": 5
+ },
+ "stages": {
+  "setup": {
+   "seconds": 0.0,
+   "count": 1,
+   "max": 0.0
+  },
+  "fetch": {
+   "seconds": 0.0,
+   "count": 1,
+   "max": 0.0
+  },
+  "filter": {
+   "seconds": 0.01,
+   "count": 1,
+   "max": 0.01
+  },
+  "rules": {
+   "seconds": 0.01,
+   "count": 1,
+   "max": 0.01
+  },
+  "application questions": {
+   "seconds": 0.0,
+   "count": 5,
+   "max": 0.0
+  },
+  "save": {
+   "seconds": 0.01,
+   "count": 1,
+   "max": 0.01
+  }
+ },
+ "http": {},
+ "ai": {},
+ "ai_by_stage": {},
+ "ai_cost_usd": 0,
+ "companies": {
+  "ashby:northwind-ai": {
+   "seconds": 0.0,
+   "jobs": 3,
+   "error": null
+  },
+  "greenhouse:lumen-data": {
+   "seconds": 0.0,
+   "jobs": 3,
+   "error": null
+  },
+  "lever:copperline": {
+   "seconds": 0.0,
+   "jobs": 2,
+   "error": null
+  }
+ },
+ "slowest_calls": [],
+ "warnings": [],
+ "errors": []
+}

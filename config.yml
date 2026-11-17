@@ -1,0 +1,83 @@
+# ─────────────────────────────────────────────────────────────
+#  Job Radar settings. Edit this file on GitHub to change what
+#  the tracker looks for. Changes apply on the next run.
+# ─────────────────────────────────────────────────────────────
+
+# Companies to watch. Each one is listed under the hiring system
+# its careers page uses, by the name in its job board's web address:
+#   jobs.ashbyhq.com/Northwind              -> ashby: Northwind
+#   boards.greenhouse.io/example-co     -> greenhouse: example-co
+#   jobs.lever.co/example-co            -> lever: example-co
+# If a name is wrong, the run skips it and lists it in the run summary.
+companies:
+  # The job boards to watch. Replace these made-up names with real ones: open a company's job
+  # posting, and the name in the link is what goes here, e.g. jobs.ashbyhq.com/NAME or
+  # job-boards.greenhouse.io/NAME or jobs.lever.co/NAME. The quiz can add more from job links.
+  ashby:
+    - example-ai-startup
+  greenhouse:
+    - example-saas-company
+  lever:
+    - example-devtools
+# Which roles, locations and pay you want now come from the Job preferences
+# quiz (saved in profile.yml). These rules always apply on top of it.
+
+# Titles containing any of these are always skipped.
+titles_exclude:
+  - manager
+  - director
+  - head of
+  - vp
+  - vice president
+  - intern
+
+# A remote job whose location names one of these counts as outside the US.
+non_us_markers:
+  - canada
+  - united kingdom
+  - uk
+  - london
+  - emea
+  - europe
+  - india
+  - apac
+  - australia
+  - germany
+  - brazil
+  - mexico
+  - latam
+  - singapore
+  - japan
+  - ireland
+  - france
+  - spain
+  - netherlands
+  - poland
+  - israel
+
+# Skip postings older than this many days (when the job board gives a date).
+max_age_days: 45
+
+# AI settings.
+ai:
+  # Who does the AI work:
+  #   mcp   - Claude, through the Job Radar MCP server and a daily Claude task (no API bill). Default.
+  #   api   - the scan calls the Claude API itself (needs the ANTHROPIC_API_KEY secret; billed per use).
+  #   rules - no AI at all: the free rules score is final, and cards come without kits.
+  mode: mcp
+  rules_min_score: 40               # free pre-score (0-100) a job needs before any AI looks at it
+  kit_wait_hours: 30                # mcp: open a strong match's card without a kit if Claude hasn't sent one by then
+  inbox_stale_hours: 72             # mcp: warn if jobs wait this long for Claude
+  scoring_model: claude-haiku-5-5   # fast and cheap: scores every matching job
+  writing_model: claude-sonnet-5-5  # writes bullets and call scripts for strong matches
+  max_jobs_scored_per_run: 40       # jobs per run sent to Claude (inbox size); the rest wait
+  max_cards_per_run: 15             # full workups (tailored resume, kit, research) per day; extras wait a day
+  snapshot_model: claude-haiku-5-5  # company research uses the cheaper model
+  tailored_resume: true             # one-page resume PDF reworded for each strong match (needs resume.docx)
+  reuse_resume_similarity: 0.6      # reuse a library resume when a job's tags overlap this much (0–1)
+  company_snapshot: true            # Claude web-searches employee ratings and CEO approval for strong matches
+  snapshot_days: 30                 # reuse a company's snapshot this long before refreshing
+  web_search_tool: web_search_20250305
+
+# Jobs scoring at or above this get a Discord alert, a tracker card and an application kit.
+alert_min_score: 7

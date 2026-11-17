@@ -1,0 +1,43 @@
+# Written by the Job preferences quiz. Retake the quiz any time from
+# Issues → New issue → "Job preferences quiz" instead of editing by hand.
+quiz_completed: true
+contact:
+  full_name: Jordan Rivera
+  email: jordan.rivera@example.com
+  phone: 555-0142
+  linkedin: https://linkedin.com/in/example-profile
+  github: https://github.com/example-user
+  city: Austin Texas
+work_arrangements:
+- remote
+- hybrid
+remote_scope: us
+areas:
+- austin
+- round rock
+- cedar park
+- pflugerville
+open_to_relocation: false
+min_base_salary: 110000
+target_total_comp: 135000
+salary_answer: ''
+role_types:
+- GTM / Growth Engineer
+- Solutions Architect / Consultant
+- Sales / Solutions Engineer
+role_priority:
+- GTM / Growth Engineer
+- Solutions Architect / Consultant
+- Sales / Solutions Engineer
+seniority:
+- Entry / Associate
+- Mid-level
+company_sizes: []
+industries_want: AI software, developer tools, data platforms
+industries_avoid: ''
+travel: Up to 25%
+work_authorization: Authorized to work in the US
+needs_sponsorship: 'No'
+start_date: Two weeks' notice
+deal_breakers: commission only, 75% travel, relocation required
+extra_companies: {}

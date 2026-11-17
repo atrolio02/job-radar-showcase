@@ -1,0 +1,10 @@
+// Cloudflare Workers settings for the Job Radar MCP server.
+// Secrets (MCP_SECRET, GITHUB_TOKEN) are never stored here: the deploy workflow
+// copies them from the repo's GitHub secrets into Cloudflare.
+{
+  "name": "job-radar-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "observability": { "enabled": true }
+}

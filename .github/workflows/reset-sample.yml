@@ -1,0 +1,27 @@
+name: Reset sample data
+
+# Run this once after you copy the repo: it deletes the fictional sample jobs, cards,
+# resumes and health logs so your own data starts clean. Your code and settings stay.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Delete the sample data
+        run: |
+          git rm -rq --ignore-unmatch data/jobs.json data/mcp/context.json data/mcp/inbox.json data/health/runs data/health/REPORT.md \
+            docs/sample-dashboard.md docs/sample-card.md
+          find resumes -mindepth 1 -maxdepth 1 -type d -exec git rm -rq {} +
+          printf '# Job Radar\n\nRun the **Daily job scan** from the Actions tab (or wait for the schedule). This page becomes your dashboard.\n\nSetup guide: [docs/SETUP.md](docs/SETUP.md)\n' > README.md
+          git add README.md
+          git config user.name "job-radar[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -qm "Reset sample data" && git push -q
