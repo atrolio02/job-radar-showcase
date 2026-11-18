@@ -242,6 +242,9 @@ def apply_incoming(config_path: str = "config.yml", data_path: Path = store.DEFA
         processed.append(path)
         data.setdefault("mcp", {})["last_submission"] = _now()
 
+    from . import promote  # imported here: promote builds on this module
+    with telemetry.stage("standard cards"):
+        promote.auto_cards(data, cfg, prof, problems)
     with telemetry.stage("save"):
         store.save(data, data_path)
         dashboard.write(data, readme_path, prof)

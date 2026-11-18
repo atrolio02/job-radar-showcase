@@ -226,3 +226,43 @@ def test_rules_handle_date_only_posted():
     job = sources.Job("k", "manual", "Acme", "Sales Engineer", "Remote", True, "u", "2026-11-15",
                       description="Demos and REST APIs.", workplace="remote")
     assert rules.score(job, RESUME, {"role_types": ["Sales / Solutions Engineer"]})[0] > 0
+
+
+def test_focus_keeps_only_gtm_and_ai_solutions_roles():
+    from jobradar import filters
+    cfg = {"ai_companies": ["openai", "Northwind"]}
+    prof = {"focus": ["GTM / Growth Engineer", "AI Solutions Engineer"]}
+    ok = lambda t, c="acme": filters.focus_ok(t, c, cfg, prof)
+    assert ok("GTM Engineer") and ok("RevOps Engineer") and ok("Senior GTM Systems Engineer")
+    assert ok("AI Solutions Engineer") and ok("Solutions Engineer, Agents") and ok("Forward Deployed Engineer")
+    assert ok("Solutions Engineer", "openai") and ok("Sales Engineer", "Northwind")
+    assert not ok("Solutions Engineer") and not ok("Solutions Consultant, Commercial", "wingtip")
+    assert not ok("Account Executive, AI", "openai") and not ok("Email Marketing Manager")
+    assert filters.focus_ok("Sales Engineer", "acme", cfg, {})  # no focus: everything passes
+
+
+def test_focus_sets_aside_queued_jobs(env, monkeypatch):
+    tmp, setup, sent = env
+    monkeypatch.chdir(tmp)
+    args = setup()
+    scan.run(**args)
+    assert inbox(tmp)["to_score"]
+    import yaml
+    (tmp / "profile.yml").write_text(yaml.safe_dump({"focus": ["GTM / Growth Engineer"]}))
+    scan.run(**args)
+    assert [j["title"] for j in inbox(tmp)["to_score"]] == ["GTM Engineer"]
+
+
+def test_focus_includes_sales_ops_and_supply_chain():
+    from jobradar import filters
+    prof = {"focus": ["Sales Operations", "BizOps / Supply Chain Systems"]}
+    assert filters.focus_ok("Sales Operations Analyst", "x", {}, prof)
+    assert filters.focus_ok("Supply Chain Analyst", "x", {}, prof)
+    assert not filters.focus_ok("Deal Desk Specialist", "x", {}, prof)
+    assert not filters.focus_ok("Deal Operations Analyst", "x", {}, prof)
+    assert not filters.focus_ok("Software Engineer", "x", {}, prof)
+    assert filters.focus_ok("Strategy & Operations Associate", "x", {}, prof)
+    assert not filters.focus_ok("Logistics Coordinator", "x", {}, prof)
+    assert not filters.focus_ok("Sourcing Specialist", "x", {}, prof)
+    assert not filters.focus_ok("People Operations Specialist", "x", {}, prof)
+    assert not filters.focus_ok("Recruiting and Sourcing Analyst", "x", {}, prof)

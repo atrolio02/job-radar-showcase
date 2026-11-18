@@ -16,6 +16,7 @@ export class GitHubError extends Error {
 }
 
 const API = "https://api.github.com";
+export const CARD_STATUSES = ["applied", "interviewing", "offer", "rejected", "skip"];
 
 export class GitHub {
   constructor(private env: Env) {}
@@ -63,8 +64,20 @@ export class GitHub {
     await this.call("POST", `/issues/${issue}/labels`, { labels: [label] });
   }
 
-  async startWorkflow(file: string): Promise<void> {
-    await this.call("POST", `/actions/workflows/${file}/dispatches`, { ref: this.branch });
+  /** Move a tracker card: one status label (none for "active"), closed for rejected/skip, open otherwise.
+   *  These label and state changes start Job Radar's status workflow, which updates the dashboard. */
+  async moveCard(issue: number, status: string): Promise<void> {
+    const resp = await this.call("GET", `/issues/${issue}`);
+    const card = (await resp.json()) as { state: string; labels: { name: string }[] };
+    const keep = card.labels.map((l) => l.name).filter((n) => !CARD_STATUSES.includes(n));
+    const labels = status === "active" ? keep : [...keep, status];
+    await this.call("PUT", `/issues/${issue}/labels`, { labels });
+    const state = status === "rejected" || status === "skip" ? "closed" : "open";
+    if (card.state !== state) await this.call("PATCH", `/issues/${issue}`, { state });
+  }
+
+  async startWorkflow(file: string, inputs?: Record<string, string>): Promise<void> {
+    await this.call("POST", `/actions/workflows/${file}/dispatches`, { ref: this.branch, ...(inputs ? { inputs } : {}) });
   }
 }
 

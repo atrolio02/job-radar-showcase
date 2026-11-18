@@ -242,11 +242,26 @@ def run(config_path: str = "config.yml", resume_path: str | None = None,
 
     # 1-2. Fetch and filter (free)
     with telemetry.stage("fetch"):
-        fetched, fetch_problems = sources.fetch_all(all_companies(cfg, prof))
+        # Only jobs with a wanted title are kept in memory; every job read still counts in the total.
+        fetched, fetch_problems = sources.fetch_all(all_companies(cfg, prof),
+                                                    keep=lambda j: filters.title_ok(j, cfg, prof))
     problems += fetch_problems
+    # Workday lists only a title and a short location: look up the full posting for new jobs with a
+    # matching title (it has the real places and remote/hybrid), so the location filter can judge it.
+    with telemetry.stage("workday details"):
+        for job in fetched:
+            if job.source != "workday" or not filters.title_ok(job, cfg, prof):
+                continue
+            seen = data["jobs"].get(job.key)
+            if seen and seen.get("location"):  # looked up on an earlier scan
+                job.location, job.workplace = seen["location"], seen.get("workplace", job.workplace)
+                job.remote = job.workplace == "remote"
+                job.posted = seen.get("posted") or job.posted
+            else:
+                sources.enrich(job)
     with telemetry.stage("filter"):
         matching = {j.key: j for j in fetched if filters.matches(j, cfg, prof)}
-    print(f"Fetched {len(fetched)} jobs; {len(matching)} match your titles and locations. AI mode: {mode}.")
+    print(f"Fetched {fetched.total} jobs; {len(matching)} match your titles and locations. AI mode: {mode}.")
 
     for key, job in matching.items():
         rec = data["jobs"].setdefault(key, {"first_seen": _now()})
@@ -254,6 +269,19 @@ def run(config_path: str = "config.yml", resume_path: str | None = None,
         info.pop("description")
         rec.update(info)
         rec["last_seen"] = _now()
+
+    # Some job sites (Oracle) list only a summary: fetch the full posting for new matches only.
+    with telemetry.stage("full descriptions"):
+        for key, job in matching.items():
+            rec = data["jobs"][key]
+            if "score" not in rec and "rules_score" not in rec:
+                sources.enrich(job)
+
+    # A focus (profile.yml) sets aside queued jobs outside it; they come back when the focus is removed.
+    for rec in data["jobs"].values():
+        if rec.get("queued_at") and not filters.focus_ok(rec.get("title"), rec.get("company"), cfg, prof):
+            rec.pop("queued_at", None)
+            rec.pop("pending_brief", None)
 
     # 3a. Rules pre-score (free): only promising jobs go on to Claude
     with telemetry.stage("rules"):
@@ -358,6 +386,11 @@ def run(config_path: str = "config.yml", resume_path: str | None = None,
             problems.append(f"Jobs have waited {oldest / 24:.0f} days for Claude to score them. "
                             "Check that the daily Claude task is running and the Job Radar connector works.")
 
+    # 4b. Scored 6 (card_min_score) but under the alert score: a card with the standard resume
+    from . import promote  # imported here: promote builds on this module
+    with telemetry.stage("standard cards"):
+        promote.auto_cards(data, cfg, prof, problems)
+
     # 5. Save memory, dashboard, and Claude's briefing and inbox
     with telemetry.stage("save"):
         store.save(data, data_path)
@@ -366,7 +399,7 @@ def run(config_path: str = "config.yml", resume_path: str | None = None,
         lastmile.write_context(cfg, prof, resume, base_docx, mcp_dir)
         inbox = lastmile.write_inbox(data, cfg, mcp_dir)
 
-    summary = {"fetched": len(fetched), "matching": len(matching), "scored": scored,
+    summary = {"fetched": fetched.total, "matching": len(matching), "scored": scored,
                "new_matches": new_matches, "waiting": waiting + inbox["to_score_waiting"],
                "skipped_by_rules": len(below), "queued_for_claude": len(inbox["to_score"]),
                "kits_for_claude": len(inbox["strong_matches"]), "mode": mode, "problems": problems}

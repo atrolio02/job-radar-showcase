@@ -1,5 +1,4 @@
 <!-- What a tracker card (GitHub Issue) looks like. All fictional. -->
-
 # 9/10 · GTM Engineer at Northwind AI
 
 **9/10** · Sample score: GTM Engineer fits the fictional candidate's APIs, demos and automation experience.
@@ -19,7 +18,7 @@
 
 ## 📄 Tailored resume
 
-**[Download PDF](resumes/f7f40e/Jordan_Rivera_Resume.pdf)** · [Word version](resumes/f7f40e/Jordan_Rivera_Resume.docx)
+**[Download PDF](../resumes/f7f40e/Jordan_Rivera_Resume.pdf)** · [Word version](../resumes/f7f40e/Jordan_Rivera_Resume.docx)
 
 Reworded: summary, 1 bullets. Led with APIs, webhooks and automation.
 _Every fact and number is from your real resume. Skim it before sending._
@@ -108,12 +107,47 @@ Two weeks' notice
 **Salary expectations**
 _[fill in yourself]_
 
-Attach your tailored resume ([PDF](resumes/f7f40e/Jordan_Rivera_Resume.pdf)). Answer any demographic questions yourself.
+Attach your tailored resume ([PDF](../resumes/f7f40e/Jordan_Rivera_Resume.pdf)). Answer any demographic questions yourself.
 
 **Why do you want to work here?**
 ```
 (Sample) Northwind AI is building exactly the kind of automation I like to demo and build. My integration and AI workflow experience maps directly to this role.
 ```
+
+## 🧾 Work history, skills and certifications
+
+_For forms that ask for each job separately (Workday and similar). Taken from the resume this card uses, so it matches what you attach._
+
+### Solutions Engineer · Brightwave Software
+**Job title** `Solutions Engineer` · **Company** `Brightwave Software` · **Location** `Austin, TX`  
+**From** `June 2025` · **To** `Present` (check “I currently work here”)
+
+**Role description**
+```
+• Run technical discovery and tailored demos for mid-market prospects alongside account executives
+• Scope proof-of-concept success criteria and own each evaluation through customer sign-off
+• Built REST API and webhook integrations that cut evaluation setup time by 40%
+• Partner with onboarding teams to hand off technical implementation plans for new customers
+```
+
+### Sales Development Representative · Kestrel Systems
+**Job title** `Sales Development Representative` · **Company** `Kestrel Systems` · **Location** `Round Rock, TX`  
+**From** `August 2023` · **To** `June 2025`
+
+**Role description**
+```
+• Created 41 qualified opportunities worth $5.2M in pipeline across healthcare and education accounts
+• Helped close $940K in new business by preparing technical account research for each deal
+• Automated meeting prep and follow-up emails with AI tools, saving 5 hours per week
+```
+
+### Skills
+_Type these one at a time where the form uses skill tags._
+```
+Python, SQL, REST APIs, webhooks, AWS, Linux, GitHub Actions, Claude, OpenAI, Zapier, prompt engineering, MCP, Salesforce, HubSpot, Gong, Outreach
+```
+
+### Certifications
 
 ---
 **Update the status** by adding a label (`applied`, `interviewing`, `offer`, `rejected`, `skip`) or by commenting `/applied`, `/interviewing`, `/offer`, `/rejected` or `/skip`. The dashboard and Discord update automatically.

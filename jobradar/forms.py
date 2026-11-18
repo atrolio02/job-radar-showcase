@@ -42,6 +42,11 @@ BOARD_LINKS = [
     ("ashby", re.compile(r"jobs\.ashbyhq\.com/([^/?#\s]+)", re.I)),
     ("greenhouse", re.compile(r"(?:boards|job-boards)\.greenhouse\.io/(?:embed/job_(?:board|app)\?for=)?([^/?#&=\s]+)", re.I)),
     ("lever", re.compile(r"jobs\.lever\.co/([^/?#\s]+)", re.I)),
+    ("smartrecruiters", re.compile(r"(?:jobs|careers)\.smartrecruiters\.com/([^/?#\s]+)", re.I)),
+    # Workday career sites: tenant.wdN.myworkdayjobs.com/[en-US/]SiteName
+    ("workday", re.compile(r"([a-z0-9-]+\.wd\d+\.myworkdayjobs\.com)/(?:[a-z]{2}-[A-Z]{2}/)?(?!wday/)([A-Za-z0-9_-]+)", re.I)),
+    # Oracle HCM career sites: the job feed or candidate site address gives the host and site number
+    ("oracle", re.compile(r"([a-z0-9-]+\.fa\.[a-z0-9-]+\.oraclecloud\.com)/hcm(?:UI|RestApi)\S*?(?:/sites/|siteNumber=)([A-Za-z0-9_]+)", re.I)),
 ]
 
 
@@ -49,6 +54,7 @@ def boards_in(text: str) -> dict[str, list[str]]:
     found: dict[str, list[str]] = {}
     for source, pattern in BOARD_LINKS:
         for name in pattern.findall(text or ""):
+            name = "/".join(name) if isinstance(name, tuple) else name  # Oracle: host/SITE
             if name not in found.setdefault(source, []):
                 found[source].append(name)
     return {k: v for k, v in found.items() if v}

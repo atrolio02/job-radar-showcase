@@ -1,0 +1,4 @@
+# Company board names to check with the "Find job boards" workflow (or: python -m jobradar.boards tools/board_candidates.txt).
+# One or more names per line. Each name is tried on Greenhouse, Ashby, Lever and SmartRecruiters.
+# Oracle HCM sites go one per line as "Company=host/SITE". Add the ones it finds to config.yml.
+example-ai-startup example-saas-company example-devtools

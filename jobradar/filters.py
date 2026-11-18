@@ -21,6 +21,8 @@ def title_ok(job: Job, cfg: dict, prof: dict) -> bool:
     title = job.title.lower()
     if not any(_has_phrase(title, p) for p in profile_mod.title_phrases(prof)):
         return False
+    if not any(profile_mod.role_matches(r, title) for r in prof.get("role_types") or []):
+        return False  # e.g. "People Operations": an operations phrase, but not the kind you want
     excludes = cfg.get("titles_exclude", []) + profile_mod.title_excludes(prof)
     return not any(_has_phrase(title, p) for p in excludes)
 
@@ -97,6 +99,33 @@ def remote_us_ok(location: str, prof: dict, cfg: dict) -> bool:
     return False
 
 
+_AI_TITLE = re.compile(r"(?<![a-z])(ai|genai|gen ai|llm|llms|ml|machine learning|agent|agents|agentic|applied ai|"
+                       r"forward deployed)(?![a-z])", re.I)
+_SOLUTIONS_LIKE = ("sales engineer", "solutions engineer", "solution engineer", "presales", "pre-sales",
+                   "solutions architect", "solution architect", "solutions consultant", "solution consultant",
+                   "forward deployed", "deployment engineer", "implementation engineer", "ai engineer", "ai specialist")
+
+
+def focus_ok(title: str, company: str, cfg: dict, prof: dict) -> bool:
+    """profile.yml `focus:` narrows the search for a while without changing your other answers.
+    'GTM / Growth Engineer': GTM-style titles. 'AI Solutions Engineer': solutions/sales engineer, architect,
+    consultant or forward-deployed roles that are about AI (in the title, or at an AI-native company)."""
+    focus = prof.get("focus") or []
+    if not focus:
+        return True
+    t = (title or "").lower()
+    if "GTM / Growth Engineer" in focus and any(p in t for p in profile_mod.ROLE_TITLES["GTM / Growth Engineer"]):
+        return True
+    if "AI Solutions Engineer" in focus and any(p in t for p in _SOLUTIONS_LIKE):
+        ai_companies = {c.lower() for c in cfg.get("ai_companies") or []}
+        if _AI_TITLE.search(t) or (company or "").lower() in ai_companies:
+            return True
+    for role in ("BizOps / Supply Chain Systems", "Sales Operations"):
+        if role in focus and profile_mod.role_matches(role, t):
+            return True
+    return False
+
+
 def location_ok(job: Job, cfg: dict, prof: dict) -> bool:
     wanted = set(prof.get("work_arrangements") or ["remote", "hybrid", "onsite"])
     where = job.location.lower()
@@ -137,5 +166,5 @@ def recent_enough(job: Job, cfg: dict, now: datetime | None = None) -> bool:
 
 
 def matches(job: Job, cfg: dict, prof: dict) -> bool:
-    return (title_ok(job, cfg, prof) and location_ok(job, cfg, prof)
-            and pay_ok(job, prof) and recent_enough(job, cfg))
+    return (title_ok(job, cfg, prof) and focus_ok(job.title, job.company, cfg, prof)
+            and location_ok(job, cfg, prof) and pay_ok(job, prof) and recent_enough(job, cfg))

@@ -21,7 +21,7 @@ application kit. You get a Discord alert, a tracker card and a one-page tailored
 ```mermaid
 flowchart LR
   cron["⏰ GitHub Actions<br/>weekday mornings"] --> scan["scan.py"]
-  scan -- "REST APIs" --> boards["Ashby · Greenhouse · Lever<br/>job boards"]
+  scan -- "REST APIs, in parallel" --> boards["Ashby · Greenhouse · Lever<br/>SmartRecruiters · Oracle HCM<br/>500+ boards, ~75,000 jobs"]
   scan --> filt{"Your roles, places,<br/>pay, seniority?"}
   filt -- yes --> pre["rules.py<br/>free pre-score 0–100"]
   pre -- "40+" --> inbox[("data/mcp/inbox.json")]
@@ -41,6 +41,16 @@ flowchart LR
   `ai.mode: api` (pay per use) and `rules` (no AI) are also supported.
 - **Every AI answer is checked.** Submissions are validated before anything changes. Resume rewrites can't
   add numbers, tools or experience that aren't already on the resume, and links must be `https://`.
+- **Built for volume.** It reads hundreds of job boards in parallel (about 75,000 postings in 3–4 minutes)
+  and keeps only the titles you want in memory. A board finder workflow checks hundreds of company names
+  at once and reports which ones have open jobs.
+- **Every match gets a card at the right depth.** Score 7+: tailored resume and full kit. Score 6: a card
+  with the standard resume, ready to apply. Lower: one tap moves it to Active.
+- **One-tap tracking.** Each dashboard row has signed Move links (Applied, Interviewing, Offer, Rejected,
+  Skip, back to Active) served by the MCP server, plus a batch page to move many jobs at once. Each link
+  can only do the one move it was made for.
+- **Ready for long application forms.** Every card splits the resume it uses into each job's title, dates
+  and description, plus skills and certifications, for Workday-style forms.
 - **It watches itself.** Every run logs its timing, Claude cost and errors. Crashes send a Discord alert
   and open an issue, and the [health report](data/health/REPORT.md) points at bottlenecks.
 
@@ -52,9 +62,9 @@ More detail: **[docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md)**.
 |---|---|
 | `jobradar/` | The pipeline (Python): sources, filters, rules, scan, last mile, tailoring, alerts, health |
 | `mcp-server/` | The MCP server (TypeScript, Cloudflare Workers): JSON-RPC over Streamable HTTP, secret-key auth |
-| `.github/workflows/` | Scan, apply Claude's work, status updates, add a job, quiz, deploy, tests, reset |
+| `.github/workflows/` | Scan, apply Claude's work, status updates, Move links, batch moves, add a job, quiz, board finder, deploy, tests, reset |
 | `.github/ISSUE_TEMPLATE/` | The preferences quiz and "Add a job" forms |
-| `tests/`, `mcp-server/test/` | 105 tests: 83 for the pipeline, 22 for the server. Nothing real is called. |
+| `tests/`, `mcp-server/test/` | 135 tests: 108 for the pipeline, 27 for the server. Nothing real is called. |
 
 ```bash
 pip install -r requirements.txt pytest && pytest -q

@@ -5,6 +5,7 @@ starting answers below are used.
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import yaml
@@ -14,7 +15,8 @@ DEFAULT_PATH = Path("profile.yml")
 # Quiz choice -> phrases a job title must contain
 ROLE_TITLES = {
     "Sales / Solutions Engineer": ["sales engineer", "solutions engineer", "solution engineer",
-                                   "presales", "pre-sales", "presales engineer"],
+                                   "presales", "pre-sales", "presales engineer",
+                                   "field applications engineer", "technical sales"],
     "Solutions Architect / Consultant": ["solutions architect", "solution architect",
                                          "solutions consultant", "solution consultant"],
     "GTM / Growth Engineer": ["gtm engineer", "gtm engineering", "go-to-market engineer", "go to market engineer",
@@ -24,8 +26,31 @@ ROLE_TITLES = {
                               "ai solutions specialist", "gtm architect", "growth systems"],
     "Forward Deployed / Implementation Engineer": ["forward deployed engineer", "implementation engineer",
                                                    "deployment engineer"],
+    "BizOps / Supply Chain Systems": ["business operations", "bizops", "biz ops", "strategy and operations",
+                                      "strategy & operations", "operations analyst", "s&op",
+                                      "sales and operations planning", "supply chain systems",
+                                      "supply chain analytics", "supply chain analyst", "supply chain data",
+                                      "supply chain technology", "supply chain solutions"],
+    "Sales Operations": ["sales operations", "sales ops", "salesops", "sales strategy", "sales analyst",
+                         "sales systems", "commercial operations", "gtm operations",
+                         "revenue operations", "revops", "crm analyst", "salesforce administrator",
+                         "salesforce admin", "business systems analyst"],
     "Account Executive": ["account executive"],
 }
+
+# Operations titles cover many teams; these aren't the business/supply-chain/sales kind.
+_OPS_NOISE = ["legal", "people", "hr", "human resources", "recruit", "recruiting", "talent", "security",
+              "it operations", "clinical", "nurse", "warehouse associate", "driver", "payroll", "facilities", "deal"]
+ROLE_EXCLUDES = {"BizOps / Supply Chain Systems": _OPS_NOISE, "Sales Operations": _OPS_NOISE}
+
+
+def role_matches(role: str, title: str) -> bool:
+    """Whether a lower-case title fits a role type: one of its phrases, none of its exclusions."""
+    t = f" {re.sub(r'[^a-z0-9&+]+', ' ', title.lower())} "
+    if not any(p in title.lower() for p in ROLE_TITLES.get(role, [role.lower()])):
+        return False
+    return not any(f" {w} " in t for w in ROLE_EXCLUDES.get(role, []))
+
 
 # Seniority choice -> title words that get excluded when it ISN'T picked
 SENIORITY_WORDS = {
@@ -92,7 +117,7 @@ def role_rank(prof: dict, title: str) -> int | None:
     """0 for the most wanted role type a title matches, 1 for the next, ... None if it matches none."""
     t = (title or "").lower()
     for i, role in enumerate(role_priority(prof)):
-        if any(phrase in t for phrase in ROLE_TITLES.get(role, [role.lower()])):
+        if role_matches(role, t):
             return i
     return None
 

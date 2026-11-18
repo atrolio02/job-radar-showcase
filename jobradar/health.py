@@ -64,7 +64,15 @@ def anomalies(run, history: list[dict]) -> list[str]:
                              "Its job board may have moved.")
     if len(past) >= 3:
         usual = statistics.median(r["seconds"] for r in past)
-        if seconds > 60 and seconds > 2.5 * usual:
+        jobs = run.counts.get("fetched") if run.workflow == "scan" else None
+        sized = [r for r in past if r["counts"].get("fetched")]
+        if jobs and len(sized) >= 3:
+            # Scans get slower when more companies are watched: judge time per job read, not total time.
+            per_job = statistics.median(r["seconds"] / r["counts"]["fetched"] for r in sized)
+            if seconds > 60 and seconds / jobs > 2.5 * per_job:
+                notes.append(f"Unusual: this run's steps took {_secs(seconds)}, about "
+                             f"{seconds / jobs / per_job:.1f}x the usual time per job read.")
+        elif seconds > 60 and seconds > 2.5 * usual:
             notes.append(f"Unusual: this run's steps took {_secs(seconds)}, about {seconds / usual:.1f}x the usual {_secs(usual)}.")
         usual_cost = statistics.median(r.get("ai_cost_usd", 0) for r in past)
         if cost > 0.05 and cost > 3 * max(usual_cost, 0.01):

@@ -19,6 +19,14 @@ companies:
     - example-saas-company
   lever:
     - example-devtools
+  # SmartRecruiters: the company ID from jobs.smartrecruiters.com/<CompanyId> (letter case matters)
+  # smartrecruiters:
+  #   - ExampleCompany
+  # Oracle HCM career sites: "Company Name=host/SITE", from the site's job-feed address
+  # oracle:
+  #   - Example Corp=example.fa.us2.oraclecloud.com/CX
+  # To check hundreds of names at once, list them in tools/board_candidates.txt and run the
+  # "Find job boards" workflow from the Actions tab.
 # Which roles, locations and pay you want now come from the Job preferences
 # quiz (saved in profile.yml). These rules always apply on top of it.
 
@@ -81,3 +89,14 @@ ai:
 
 # Jobs scoring at or above this get a Discord alert, a tracker card and an application kit.
 alert_min_score: 7
+
+# Jobs scoring at or above this (but under alert_min_score) also get a card and go to Active, with your
+# standard resume instead of a tailored one, and no wait for Claude's kit.
+card_min_score: 6
+# Your standard resume as a PDF, linked on those cards. Save it at this path.
+standard_resume_pdf: resumes/standard/Jordan_Rivera_Resume.pdf
+
+# One-tap Move links on the dashboard go through your MCP server (no secret here: each link is signed).
+# Set this to your server's address once it's deployed (docs/MCP_SERVER.md). Without it, the links open
+# a short prefilled form instead.
+# move_links: https://job-radar-mcp.YOUR-SUBDOMAIN.workers.dev

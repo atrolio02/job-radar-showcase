@@ -31,13 +31,19 @@ Tailored copies only ever reword your bullets. They never add experience, tools 
 
 ## 3. Choose the companies to watch (5 minutes)
 
-Open `config.yml` and edit the `companies:` list. Job Radar reads three job-board systems:
+Open `config.yml` and edit the `companies:` list. Job Radar reads five job-board systems:
 
 | If a company's job links look like… | add the name under |
 |---|---|
 | `jobs.ashbyhq.com/NAME/...` | `ashby:` |
 | `boards.greenhouse.io/NAME/...` or `job-boards.greenhouse.io/NAME/...` | `greenhouse:` |
 | `jobs.lever.co/NAME/...` | `lever:` |
+| `jobs.smartrecruiters.com/NAME/...` | `smartrecruiters:` (letter case matters) |
+| `HOST.fa.REGION.oraclecloud.com/hcmUI/CandidateExperience/.../sites/SITE/...` | `oracle:` as `Company=HOST/SITE` |
+
+**Watching many companies:** list candidate names in `tools/board_candidates.txt` and run **Actions → Find
+job boards**. It tries each name on every system and logs the ones with open jobs and how many, so you can
+add them in bulk. Boards are read in parallel; hundreds of companies take a few minutes.
 
 Companies on other systems (Workday and custom career sites) can't be watched, but you can still paste any
 job into **Add a job** (step 8) to get the full kit.
@@ -86,9 +92,20 @@ To run it any time: **Actions → Daily job scan → Run workflow**.
 - **Your dashboard** is the repo's home page (README). It lists strong matches, their status and pay.
 - **Each strong match is a card** (an Issue) with the score, tailored resume PDF, application answers,
   a cold-call script, a LinkedIn note and employer research.
-- **Update status** by adding a label to the card (`applied`, `interviewing`, `offer`, `rejected`, `skip`)
-  or commenting `/applied`, `/interviewing` and so on. In `mcp` mode you can also tell Claude
-  "mark the Acme one applied."
+- **Sections:** Active (to apply to), Applied (applied, interviewing, offer), Closed out (rejected,
+  skipped) and Lower-scoring. Every row has a Job ID (`#12` for cards, `J-1a2b3c` for jobs without one).
+- **Cards by score:** 7+ gets a tailored resume and full kit; 6 gets a card with your standard resume
+  (`standard_resume_pdf` in `config.yml`); lower scores can be moved to Active with one tap.
+- **Move jobs with one tap:** each row's links (📨 Applied, ⏭️ Skip, 🗣️ Interviewing, 🎉 Offer, ✖️ Rejected,
+  ↩️ Move to active) move the job. Set `move_links:` in `config.yml` to your MCP server's address to make
+  them one-tap; each link is signed for its one move, so the dashboard never shows your key. Without it,
+  they open a short prefilled form: press Submit.
+- **Move many at once:** **☑️ Move several jobs at once** at the top of the dashboard opens a page with a
+  checkbox per job. Tick them and pick where they go (up to 15 cards per tap).
+- You can also add a label to a card (`applied`, `interviewing`, `offer`, `rejected`, `skip`), comment
+  `/applied` and so on, or in `mcp` mode tell Claude "move job 12 to applied."
+- **Long application forms:** every card has a **Work history, skills and certifications** section that
+  splits the resume it uses into each job's title, dates and description, ready to paste into Workday.
 - **Found a job somewhere else?** **Issues → New issue → Add a job**, paste the posting, and it gets scored
   and a kit like any other.
 - **Health:** `data/health/REPORT.md` shows failures, the slowest steps, cost and bottlenecks for the last

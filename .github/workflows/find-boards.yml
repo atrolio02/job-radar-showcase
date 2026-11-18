@@ -1,0 +1,31 @@
+name: Find job boards
+
+# Checks the names in tools/board_candidates.txt on every hiring system Job Radar reads and lists the
+# boards that exist with their open-job counts. Run it from the Actions tab, then add the good ones
+# to config.yml.
+on:
+  workflow_dispatch:
+    inputs:
+      list:
+        description: "File with the names to check"
+        default: tools/board_candidates.txt
+
+permissions:
+  contents: read
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m jobradar.boards "${{ inputs.list }}" --out board-check.json | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: board-check
+          path: board-check.json

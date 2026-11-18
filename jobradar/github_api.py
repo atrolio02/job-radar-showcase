@@ -21,6 +21,7 @@ STATUS_LABELS = {
     "skip": ("cccccc", "Not interested"),
     "job": ("fbca04", "Job Radar card"),
     "preferences": ("c5def5", "Job preferences quiz"),
+    "move": ("ededed", "Dashboard button form (closes itself)"),
     "add-job": ("bfd4f2", "Job added by hand"),
     "radar-error": ("d93f0b", "Job Radar hit a problem (opened automatically)"),
 }
@@ -56,8 +57,23 @@ def file_link(path: str) -> str:
     return f"{repo_url()}/blob/{branch}/{quote(path)}" if repo_url() else path
 
 
+STANDARD_RESUME_PDF = "resumes/standard/Jordan_Rivera_Resume.pdf"  # config.yml standard_resume_pdf overrides
+
+
+def _standard_pdf() -> str:
+    try:
+        import yaml
+        return (yaml.safe_load(open("config.yml")) or {}).get("standard_resume_pdf") or STANDARD_RESUME_PDF
+    except (OSError, ValueError):
+        return STANDARD_RESUME_PDF
+
+
 def _tailored(job: dict) -> list[str]:
     tr = job.get("tailored_resume")
+    if not tr and job.get("standard_resume"):
+        return ["", "## 📄 Resume", "",
+                f"**[Download PDF]({file_link(_standard_pdf())})** · [Word version]({file_link('resume.docx')})", "",
+                "_This job scored under 7, so it uses your standard resume (no tailoring)._"]
     if not tr:
         return []
     if tr.get("reused"):
@@ -141,6 +157,7 @@ def _kit(job: dict, prof: dict) -> list[str]:
         out += ["", f"**{k}**"] + (["```", v, "```"] if v else ["_[fill in yourself]_"])
     tr = job.get("tailored_resume") or {}
     attach = (f"Attach your tailored resume ([PDF]({file_link(tr['pdf'])})). " if tr.get("pdf")
+              else f"Attach your standard resume ([PDF]({file_link(_standard_pdf())})). " if job.get("standard_resume")
               else "Attach your resume PDF. ")
     out += ["", attach + "Answer any demographic questions yourself."]
     if m.get("why_company"):
@@ -156,7 +173,7 @@ def issue_body(job: dict, prof: dict | None = None) -> str:
 
     m = job.get("materials") or {}
     parts = [
-        f"**{job['score']}/10** · {job.get('summary', '')}",
+        f"**{job.get('score', '–')}/10** · {job.get('summary', '')}",
         "",
         f"**Company:** {job['company']}  ",
         f"**Location:** {job.get('location') or 'Not listed'} ({job.get('workplace', 'unknown')})  ",
@@ -175,7 +192,9 @@ def issue_body(job: dict, prof: dict | None = None) -> str:
             "", "### 30-second cold call", "> " + m.get("cold_call", "").replace("\n", "\n> "),
             "", "### LinkedIn note", "> " + m.get("linkedin_note", ""),
         ]
-        parts += _kit(job, prof or {})
+    parts += _kit(job, prof or {})
+    from . import workhistory  # imported here: it reads resume files only when a card is written
+    parts += workhistory.card_section(job)
     parts += [
         "", "---",
         "**Update the status** by adding a label (`applied`, `interviewing`, `offer`, `rejected`, `skip`) "
@@ -199,6 +218,8 @@ def card_labels(job: dict) -> list[str]:
 
 
 def card_title(job: dict) -> str:
+    if job.get("score") is None:  # added by hand without a score (e.g. already applied)
+        return f"{job['title']} at {job['company']}"
     return f"{job['score']}/10 · {job['title']} at {job['company']}"
 
 
@@ -209,6 +230,13 @@ def create_issue(job: dict, prof: dict | None = None) -> tuple[int, str]:
     r.raise_for_status()
     data = r.json()
     return data["number"], data["html_url"]
+
+
+def refresh_card(number: int, job: dict, prof: dict | None = None) -> None:
+    """Rewrite an existing card's text (keeps its title, labels and status)."""
+    r = requests.patch(f"{API}/repos/{_repo()}/issues/{number}", headers=_headers(), timeout=30,
+                       json={"body": issue_body(job, prof)})
+    r.raise_for_status()
 
 
 def turn_into_card(number: int, job: dict, prof: dict | None = None) -> str:

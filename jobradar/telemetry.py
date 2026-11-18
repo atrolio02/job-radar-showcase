@@ -24,6 +24,7 @@ import hashlib
 import json
 import os
 import re
+import threading
 import time
 import traceback
 from datetime import datetime, timedelta, timezone
@@ -129,8 +130,16 @@ def _add_stage(run: Run, path: str, seconds: float) -> None:
     s["max"] = max(s["max"], seconds)
 
 
+_lock = threading.Lock()  # the scan reads several job boards at once
+
+
 @_safe
 def record_http(method: str, url: str, seconds: float, status, response=None) -> None:
+    with _lock:
+        _record_http(method, url, seconds, status, response)
+
+
+def _record_http(method: str, url: str, seconds: float, status, response=None) -> None:
     run = _run
     if run is None:
         return

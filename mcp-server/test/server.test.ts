@@ -1,6 +1,6 @@
 // Tests with a fake GitHub API, so nothing real is called.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import worker, { safeEqual } from "../src/index";
+import worker, { batchSignature, moveSignature, promoteSignature, safeEqual } from "../src/index";
 
 const SECRET = "s".repeat(40);
 const env = { MCP_SECRET: SECRET, GITHUB_TOKEN: "ghp_test", GITHUB_REPO: "me/job-radar" };
@@ -41,6 +41,9 @@ beforeEach(() => {
     if (failWith) return new Response("{}", { status: failWith });
     const path = decodeURIComponent(new URL(url).pathname.replace("/repos/me/job-radar/contents/", ""));
     if (method === "GET" && FILES[path] !== undefined) return new Response(FILES[path]);
+    if (method === "GET" && /\/issues\/\d+$/.test(path)) {
+      return new Response(JSON.stringify({ state: "closed", labels: [{ name: "job" }, { name: "skip" }, { name: "resume-x" }] }));
+    }
     if (method === "GET") return new Response("{}", { status: 404 });
     return new Response("{}", { status: 201 });
   });
@@ -232,12 +235,13 @@ describe("tools", () => {
     expect(applied.structuredContent.jobs).toHaveLength(1);
   });
 
-  it("updates status by labeling a real tracker card only", async () => {
+  it("updates status by relabeling a real tracker card only", async () => {
     const r = await call("update_job_status", { issue_number: 7, status: "applied" });
     expect(r.structuredContent.status).toBe("applied");
-    const post = calls.find((c) => c.method === "POST")!;
-    expect(post.url).toMatch(/issues\/7\/labels$/);
-    expect(post.body).toEqual({ labels: ["applied"] });
+    const put = calls.find((c) => c.method === "PUT")!;
+    expect(put.url).toMatch(/issues\/7\/labels$/);
+    expect(put.body).toEqual({ labels: ["job", "resume-x", "applied"] });
+    expect(calls.find((c) => c.method === "PATCH")!.body).toEqual({ state: "open" });
     expect((await call("update_job_status", { issue_number: 99, status: "applied" })).isError).toBe(true);
     expect((await call("update_job_status", { issue_number: 7, status: "hired!" })).isError).toBe(true);
   });
@@ -254,5 +258,62 @@ describe("tools", () => {
     expect(r.isError).toBe(true);
     expect(r.content[0].text).toMatch(/daily scan/);
     FILES["data/mcp/inbox.json"] = JSON.stringify(INBOX);
+  });
+});
+
+describe("dashboard Move links", () => {
+  const link = async (path: string) => worker.fetch(new Request(`https://x.dev${path}`), env);
+
+  it("moves a closed card back to active with a signed link", async () => {
+    const sig = await moveSignature(SECRET, 4, "active");
+    const resp = await link(`/move/4/active/${sig}`);
+    expect(resp.status).toBe(200);
+    expect(await resp.text()).toMatch(/Moved #4 to active/);
+    expect(calls.find((c) => c.method === "PUT")!.body).toEqual({ labels: ["job", "resume-x"] });
+    expect(calls.find((c) => c.method === "PATCH")!.body).toEqual({ state: "open" });
+  });
+
+  it("refuses links that are unsigned, tampered or for another card", async () => {
+    const sig = await moveSignature(SECRET, 4, "active");
+    for (const path of [`/move/4/active/${"0".repeat(32)}`, `/move/5/active/${sig}`, `/move/4/applied/${sig}`,
+                        `/move/4/hired/${sig}`, "/move/4/active"]) {
+      expect((await link(path)).status).toBe(404);
+    }
+    expect(calls).toHaveLength(0);
+  });
+
+  it("promotes a job without a card by starting the promote workflow", async () => {
+    const sig = await promoteSignature(SECRET, "J-1a2b3c");
+    const resp = await link(`/promote/J-1a2b3c/${sig}`);
+    expect(resp.status).toBe(200);
+    const post = calls.find((c) => c.method === "POST")!;
+    expect(post.url).toMatch(/actions\/workflows\/promote\.yml\/dispatches$/);
+    expect(post.body).toEqual({ ref: "main", inputs: { job: "J-1a2b3c" } });
+    expect((await link(`/promote/J-ffffff/${sig}`)).status).toBe(404);
+  });
+
+  it("shows the batch page and moves several jobs in one tap", async () => {
+    const sig = await batchSignature(SECRET);
+    const pageResp = await link(`/batch/${sig}`);
+    const html = await pageResp.text();
+    expect(html).toMatch(/Move several jobs/);
+    expect(html).toMatch(/value="#7"/);   // Acme, active
+    expect(html).toMatch(/value="#9"/);   // Beta, applied
+    const body = new URLSearchParams([["pick", "#7"], ["pick", "#9"], ["pick", "#99"], ["to", "skip"]]);
+    const resp = await worker.fetch(new Request(`https://x.dev/batch/${sig}`, { method: "POST", body,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" } }), env);
+    expect(await resp.text()).toMatch(/Moved #7, #9 to <b>skip<\/b>/);
+    const puts = calls.filter((c) => c.method === "PUT");
+    expect(puts.map((c) => c.url.match(/issues\/(\d+)/)![1])).toEqual(["7", "9"]);
+    expect(puts[0].body).toEqual({ labels: ["job", "resume-x", "skip"] });
+  });
+
+  it("sends jobs without a card to the promote workflow in one call", async () => {
+    const sig = await batchSignature(SECRET);
+    const body = new URLSearchParams([["pick", "J-1a2b3c"], ["pick", "J-4d5e6f"], ["to", "active"]]);
+    await worker.fetch(new Request(`https://x.dev/batch/${sig}`, { method: "POST", body }), env);
+    const post = calls.find((c) => c.method === "POST")!;
+    expect(post.body).toEqual({ ref: "main", inputs: { job: "J-1a2b3c,J-4d5e6f" } });
+    expect((await link(`/batch/${"0".repeat(32)}`)).status).toBe(404);
   });
 });

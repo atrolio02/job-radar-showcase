@@ -78,6 +78,8 @@ body:
         - label: Solutions Architect / Consultant
         - label: GTM / Growth Engineer
         - label: Forward Deployed / Implementation Engineer
+        - label: Sales Operations
+        - label: BizOps / Supply Chain Systems
         - label: Account Executive
   - type: checkboxes
     id: seniority

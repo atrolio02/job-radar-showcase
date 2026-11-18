@@ -25,7 +25,7 @@ interface Tool {
   run: (gh: GitHub, args: Json) => Promise<unknown>;
 }
 
-const STATUSES = ["applied", "interviewing", "offer", "rejected", "skip"];
+const STATUSES = ["applied", "interviewing", "offer", "rejected", "skip", "active"];
 const MAX_SUBMISSION_BYTES = 200_000;
 
 const str = (max: number) => ({ type: "string", maxLength: max });
@@ -284,8 +284,8 @@ export const TOOLS: Tool[] = [
     name: "update_job_status",
     title: "Update job status",
     description:
-      "Move a tracker card to applied, interviewing, offer, rejected or skip. This labels the card, and Job " +
-      "Radar updates the dashboard and posts to Discord.",
+      "Move a tracker card (its job ID is the card number) to applied, interviewing, offer, rejected, skip, or " +
+      "back to active. Job Radar updates the dashboard and posts to Discord.",
     inputSchema: {
       type: "object",
       required: ["issue_number", "status"],
@@ -300,7 +300,7 @@ export const TOOLS: Tool[] = [
       const data = await gh.readJson<{ jobs: Record<string, Json> }>("data/jobs.json");
       const job = Object.values(data.jobs).find((j) => j.issue_number === n);
       if (!job) throw new ToolError(`#${n} isn't a Job Radar tracker card.`);
-      await gh.addLabel(n, status);
+      await gh.moveCard(n, status);
       return { updated: `#${n} ${job.title} at ${job.company}`, status };
     },
   },

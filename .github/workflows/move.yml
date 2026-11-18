@@ -1,0 +1,76 @@
+name: Move a job
+
+# Fires when you press one of the dashboard's buttons and submit the "Move a job" form.
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: job-radar-move-${{ github.event.issue.number }}   # one per form; saves merge if two finish at once
+  cancel-in-progress: false
+
+# Signs the dashboard's one-tap Move links (the same key as the MCP server; never shown).
+env:
+  MOVE_LINK_SECRET: ${{ secrets.MCP_SECRET }}
+
+jobs:
+  move:
+    # The title check is a backup: GitHub drops a form's label if the label doesn't exist yet.
+    if: github.event.sender.login == github.repository_owner && (contains(github.event.issue.labels.*.name, 'move') || startsWith(github.event.issue.title, 'Move '))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Move it
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m jobradar.move
+      - name: Save results
+        run: |
+          git config user.name "job-radar[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          branch=$(git rev-parse --abbrev-ref HEAD)
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git add -A data/jobs.json README.md data/health
+            git diff --cached --quiet && exit 0
+            git commit -q -m "Moved a job (form #${{ github.event.issue.number }})"
+            git push -q && exit 0
+            cp data/jobs.json "$RUNNER_TEMP/ours.json"
+            cp -r data/health "$RUNNER_TEMP/" 2>/dev/null || true
+            sleep $((RANDOM % 5 + 1)); git fetch -q origin "$branch" && git reset -q --hard "origin/$branch"
+            cp -r "$RUNNER_TEMP/health" data/ 2>/dev/null || true
+            python -m jobradar.merge "$RUNNER_TEMP/ours.json"
+            python -m jobradar.health --write > /dev/null || true
+          done
+          exit 1
+      - name: If anything above failed, alert and keep the health log
+        if: failure()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 jobradar/failsafe.py || true
+          [ -d data/health ] || exit 0
+          git config user.name "job-radar[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          branch=$(git rev-parse --abbrev-ref HEAD)
+          cp -r data/health "$RUNNER_TEMP/" 2>/dev/null || true
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch -q origin "$branch" && git reset -q --hard "origin/$branch" || exit 0
+            cp -r "$RUNNER_TEMP/health" data/ 2>/dev/null || true
+            git add -A data/health
+            git diff --cached --quiet && exit 0
+            git commit -q -m "Health log: failed run" && git push -q && exit 0
+          done

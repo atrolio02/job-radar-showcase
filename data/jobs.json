@@ -86,6 +86,7 @@
           "status": "new"
         }
       ],
+      "issue_number": 1,
       "key": "ashby:northwind-ai:gtm-1",
       "last_seen": "2026-11-17T23:41:48+00:00",
       "location": "Remote, United States",
@@ -187,6 +188,7 @@
           "status": "new"
         }
       ],
+      "issue_number": 2,
       "key": "ashby:northwind-ai:gtm-2",
       "last_seen": "2026-11-17T23:41:48+00:00",
       "location": "Austin, TX",
@@ -332,6 +334,7 @@
           "status": "new"
         }
       ],
+      "issue_number": 3,
       "key": "greenhouse:lumen-data:301",
       "last_seen": "2026-11-17T23:41:48+00:00",
       "location": "Remote - US",
@@ -440,6 +443,7 @@
           "status": "new"
         }
       ],
+      "issue_number": 4,
       "key": "lever:copperline:c-11",
       "last_seen": "2026-11-17T23:41:48+00:00",
       "location": "Remote, United States",

@@ -1,0 +1,11 @@
+name: Move a job
+description: Used by the dashboard's buttons. Just press Submit; the title says what moves where.
+title: "Move #0 to applied"
+labels: ["move"]
+body:
+  - type: markdown
+    attributes:
+      value: "The title says which card moves and where. Press **Submit new issue** and Job Radar does the rest (this form closes itself)."
+  - type: input
+    id: note
+    attributes: {label: Note (optional)}

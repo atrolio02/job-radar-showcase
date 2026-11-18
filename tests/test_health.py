@@ -172,3 +172,14 @@ def test_failsafe_stays_quiet_when_already_alerted(tmp_path, monkeypatch, capsys
     monkeypatch.setattr(fs, "_call", lambda *a, **k: pytest.fail("should not alert twice"))
     fs.main()
     assert "already sent" in capsys.readouterr().out
+
+
+def test_bigger_scans_are_not_called_slow():
+    from types import SimpleNamespace
+    past = [{"workflow": "scan", "outcome": "ok", "seconds": 34, "ai_cost_usd": 0,
+             "counts": {"fetched": 12700}, "companies": {}} for _ in range(5)]
+    run = SimpleNamespace(workflow="scan", stages={"fetch": {"seconds": 200}}, ai={}, http={}, companies={},
+                          counts={"fetched": 74000})
+    assert not [n for n in health.anomalies(run, past) if "took" in n]
+    run.counts = {"fetched": 12700}
+    assert [n for n in health.anomalies(run, past) if "took" in n]
