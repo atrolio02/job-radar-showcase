@@ -100,8 +100,10 @@ To run it any time: **Actions → Daily job scan → Run workflow**.
   ↩️ Move to active) move the job. Set `move_links:` in `config.yml` to your MCP server's address to make
   them one-tap; each link is signed for its one move, so the dashboard never shows your key. Without it,
   they open a short prefilled form: press Submit.
-- **Move many at once:** **☑️ Move several jobs at once** at the top of the dashboard opens a page with a
-  checkbox per job. Tick them and pick where they go (up to 15 cards per tap).
+- **Quick view:** the **⚡ Quick view** link at the top of the dashboard opens a page served by your MCP
+  server where job links open in new tabs (GitHub doesn't allow that in a README), chips filter by
+  application site (Greenhouse, Ashby, Workday...) so you can apply to one kind in a row, and checkboxes
+  move many jobs at once (up to 15 cards per tap). The dashboard's **Site** column shows the same thing.
 - You can also add a label to a card (`applied`, `interviewing`, `offer`, `rejected`, `skip`), comment
   `/applied` and so on, or in `mcp` mode tell Claude "move job 12 to applied."
 - **Long application forms:** every card has a **Work history, skills and certifications** section that

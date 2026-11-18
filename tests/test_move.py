@@ -72,3 +72,11 @@ def test_score_6_gets_a_standard_card_and_lower_gets_a_promote_link(monkeypatch,
 def test_promote_signature_matches_the_server():
     import hashlib, hmac
     assert hmac.new(b"s" * 40, b"promote:J-1a2b3c", hashlib.sha256).hexdigest()[:32] == "3992e97ea92956b603dd30e16085346b"
+
+
+def test_site_column_names_the_application_site():
+    assert dashboard.site({"url": "https://job-boards.greenhouse.io/x/jobs/1"}) == "Greenhouse"
+    assert dashboard.site({"url": "https://www.example.com/careers?gh_jid=5"}) == "Greenhouse"
+    assert dashboard.site({"url": "https://acme.wd1.myworkdayjobs.com/job/1"}) == "Workday"
+    assert dashboard.site({"url": "https://careers.example.com/1", "source": "ashby"}) == "Ashby"
+    assert dashboard.site({"url": "https://www.example.org/jobs/2"}) == "example.org"

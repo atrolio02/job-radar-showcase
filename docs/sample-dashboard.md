@@ -2,7 +2,7 @@
 
 # 📡 Job Radar
 
-_Updated Nov 18, 2026 17:39 UTC · 5 matching jobs seen · 5 scored by AI · 4 strong matches_
+_Updated Nov 18, 2026 17:58 UTC · 5 matching jobs seen · 5 scored by AI · 4 strong matches_
 
 🆕 New **2** → 📨 Applied **1** → 🗣️ Interviewing **1** → 🎉 Offer **0**
 
@@ -11,21 +11,21 @@ _Updated Nov 18, 2026 17:39 UTC · 5 matching jobs seen · 5 scored by AI · 4 s
 ## Active
 _Jobs to apply to. Tap **📨 Applied** once you've sent it; the job moves to Applied in about a minute._
 
-| Job ID | Move to (one tap) | Score | Company | Role | Location | Pay | Status | Posted | Tracker |
-|:-:|---|:-:|---|---|---|---|---|---|:-:|
-| **#2** | [📨 Applied](../../../issues/new?template=move.yml&title=Move+%232+to+applied) · [⏭️ Skip](../../../issues/new?template=move.yml&title=Move+%232+to+skip) | **7** | Northwind AI | [GTM Systems Engineer](https://example.com/jobs/northwind-ai/gtm-2) | Austin, TX | $125,000 - $150,000 | 🆕 new | 2026-11-12 |  |
-| **#4** | [📨 Applied](../../../issues/new?template=move.yml&title=Move+%234+to+applied) · [⏭️ Skip](../../../issues/new?template=move.yml&title=Move+%234+to+skip) | **7** | Copperline Labs | [Sales Engineer](https://example.com/jobs/copperline/c-11) | Remote, United States | $115,000 - $140,000 | 🆕 new | 2026-11-11 |  |
+| Job ID | Move to (one tap) | Score | Company | Role | Site | Location | Pay | Status | Posted | Tracker |
+|:-:|---|:-:|---|---|---|---|---|---|---|:-:|
+| **#2** | [📨 Applied](../../../issues/new?template=move.yml&title=Move+%232+to+applied) · [⏭️ Skip](../../../issues/new?template=move.yml&title=Move+%232+to+skip) | **7** | Northwind AI | [GTM Systems Engineer](https://example.com/jobs/northwind-ai/gtm-2) | Ashby | Austin, TX | $125,000 - $150,000 | 🆕 new | 2026-11-12 |  |
+| **#4** | [📨 Applied](../../../issues/new?template=move.yml&title=Move+%234+to+applied) · [⏭️ Skip](../../../issues/new?template=move.yml&title=Move+%234+to+skip) | **7** | Copperline Labs | [Sales Engineer](https://example.com/jobs/copperline/c-11) | Lever | Remote, United States | $115,000 - $140,000 | 🆕 new | 2026-11-11 |  |
 
 ## Applied
-| Job ID | Move to (one tap) | Score | Company | Role | Location | Pay | Status | Posted | Tracker |
-|:-:|---|:-:|---|---|---|---|---|---|:-:|
-| **#3** | [🗣️ Interviewing](../../../issues/new?template=move.yml&title=Move+%233+to+interviewing) · [✖️ Rejected](../../../issues/new?template=move.yml&title=Move+%233+to+rejected) | **8** | Lumen Data | [Solutions Consultant, Mid-Market](https://example.com/jobs/lumen-data/301) | Remote - US | $120,000 - $150,000 | 📨 applied | 2026-11-14 |  |
-| **#1** | [🎉 Offer](../../../issues/new?template=move.yml&title=Move+%231+to+offer) · [✖️ Rejected](../../../issues/new?template=move.yml&title=Move+%231+to+rejected) | **9** | Northwind AI | [GTM Engineer](https://example.com/jobs/northwind-ai/gtm-1) | Remote, United States | $135,000 - $165,000 | 🗣️ interviewing | 2026-11-15 |  |
+| Job ID | Move to (one tap) | Score | Company | Role | Site | Location | Pay | Status | Posted | Tracker |
+|:-:|---|:-:|---|---|---|---|---|---|---|:-:|
+| **#3** | [🗣️ Interviewing](../../../issues/new?template=move.yml&title=Move+%233+to+interviewing) · [✖️ Rejected](../../../issues/new?template=move.yml&title=Move+%233+to+rejected) | **8** | Lumen Data | [Solutions Consultant, Mid-Market](https://example.com/jobs/lumen-data/301) | Greenhouse | Remote - US | $120,000 - $150,000 | 📨 applied | 2026-11-14 |  |
+| **#1** | [🎉 Offer](../../../issues/new?template=move.yml&title=Move+%231+to+offer) · [✖️ Rejected](../../../issues/new?template=move.yml&title=Move+%231+to+rejected) | **9** | Northwind AI | [GTM Engineer](https://example.com/jobs/northwind-ai/gtm-1) | Ashby | Remote, United States | $135,000 - $165,000 | 🗣️ interviewing | 2026-11-15 |  |
 
 ## Closed out
-| Job ID | Move to (one tap) | Score | Company | Role | Location | Pay | Status | Posted | Tracker |
-|:-:|---|:-:|---|---|---|---|---|---|:-:|
-| – | – | – | – | – | – | – | – | – | – |
+| Job ID | Move to (one tap) | Score | Company | Role | Site | Location | Pay | Status | Posted | Tracker |
+|:-:|---|:-:|---|---|---|---|---|---|---|:-:|
+| – | – | – | – | – | – | – | – | – | – | – |
 
 _Nothing yet. Skipped and rejected jobs land here, each with a ↩️ Move to active link._
 
@@ -33,9 +33,9 @@ _Nothing yet. Skipped and rejected jobs land here, each with a ↩️ Move to ac
 
 _Scored under 6, so no card yet. Tap **➕ Move to active** to make one (standard resume)._
 
-| Job ID | Move to (one tap) | Score | Company | Role | Location | Pay | Status | Posted | Tracker |
-|:-:|---|:-:|---|---|---|---|---|---|:-:|
-| **J-203260** |  | **6** | Northwind AI | [Solutions Engineer](https://example.com/jobs/northwind-ai/se-3) | Austin, TX | $118,000 - $145,000 |   | 2026-11-05 |  |
+| Job ID | Move to (one tap) | Score | Company | Role | Site | Location | Pay | Status | Posted | Tracker |
+|:-:|---|:-:|---|---|---|---|---|---|---|:-:|
+| **J-203260** |  | **6** | Northwind AI | [Solutions Engineer](https://example.com/jobs/northwind-ai/se-3) | Ashby | Austin, TX | $118,000 - $145,000 |   | 2026-11-05 |  |
 
 </details>
 

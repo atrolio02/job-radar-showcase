@@ -77,6 +77,25 @@ def _buttons(job: dict) -> str:
     return " · ".join(f"[{BUTTONS[s]}]({move_link(n, s)})" for s in NEXT.get(job.get("status") or "new", []))
 
 
+SITES = [("greenhouse.io", "Greenhouse"), ("gh_jid=", "Greenhouse"), ("ashbyhq.com", "Ashby"), ("lever.co", "Lever"),
+         ("myworkdayjobs.com", "Workday"), ("smartrecruiters.com", "SmartRecruiters"), ("oraclecloud.com", "Oracle"),
+         ("linkedin.com", "LinkedIn"), ("indeed.com", "Indeed")]
+SOURCE_SITES = {"greenhouse": "Greenhouse", "ashby": "Ashby", "lever": "Lever", "workday": "Workday",
+                "smartrecruiters": "SmartRecruiters", "oracle": "Oracle"}
+
+
+def site(job: dict) -> str:
+    """Which application site the job's link goes to (company career pages often wrap Greenhouse)."""
+    url = (job.get("url") or "").lower()
+    for marker, name in SITES:
+        if marker in url:
+            return name
+    if job.get("source") in SOURCE_SITES:
+        return SOURCE_SITES[job["source"]]
+    host = url.split("//")[-1].split("/")[0].removeprefix("www.")
+    return host or "–"
+
+
 def _row(job: dict, buttons: bool = False) -> str:
     card = f"[card]({job['issue_url']})" if job.get("issue_url") else ""
     first = ""
@@ -84,7 +103,7 @@ def _row(job: dict, buttons: bool = False) -> str:
         jid = f"#{job['issue_number']}" if job.get("issue_number") else short_id(job.get("key", ""))
         first = f"**{jid}** | {_buttons(job)} | "
     return (f"| {first}**{job.get('score', '–')}** | {_cell(job['company'])} | "
-            f"[{_cell(job['title'])}]({job.get('url', '')}) | {_cell(job.get('location'))[:40]} | "
+            f"[{_cell(job['title'])}]({job.get('url', '')}) | {site(job)} | {_cell(job.get('location'))[:40]} | "
             f"{_cell(job.get('pay_text'))[:24] or '–'} | "
             f"{STATUS_ICON.get(job.get('status'), '')} {job.get('status', '')} | "
             f"{(job.get('posted') or '')[:10]} | {card} |")
@@ -94,8 +113,8 @@ def _table(jobs: list[dict], buttons: bool = False, empty: str = "_Nothing here 
            always_head: bool = False) -> list[str]:
     if not jobs and not always_head:
         return [empty]
-    head = ["| " + ("Job ID | Move to (one tap) | " if buttons else "") + "Score | Company | Role | Location | Pay | Status | Posted | Tracker |",
-            "|" + (":-:|---|" if buttons else "") + ":-:|---|---|---|---|---|---|:-:|"]
+    head = ["| " + ("Job ID | Move to (one tap) | " if buttons else "") + "Score | Company | Role | Site | Location | Pay | Status | Posted | Tracker |",
+            "|" + (":-:|---|" if buttons else "") + ":-:|---|---|---|---|---|---|---|:-:|"]
     order = {s: i for i, s in enumerate(ACTIVE + DONE)}
     jobs = sorted(jobs, key=lambda j: (order.get(j.get("status"), 99), -j.get("score", 0)))
     if not jobs:  # keep the columns visible so every section looks the same
@@ -128,7 +147,8 @@ def render(data: dict, now: datetime | None = None, prof: dict | None = None) ->
         *([] if (prof or {}).get("quiz_completed") else [
             f"> 👉 **[Take the job preferences quiz]({_repo_link('issues/new?template=preferences.yml')})** "
             "so Job Radar searches for the work style, places and pay you want.", ""]),
-        *([f"**[☑️ Move several jobs at once]({batch_link()})**", ""] if batch_link() else []),
+        *([f"**[⚡ Quick view: links open in new tabs, sort by site, move several at once]({batch_link()})**", ""]
+          if batch_link() else []),
         f"[➕ Add a job you found elsewhere]({_repo_link('issues/new?template=add-job.yml')}) · "
         f"[⚙️ Retake the preferences quiz]({_repo_link('issues/new?template=preferences.yml')})",
         "",

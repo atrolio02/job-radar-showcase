@@ -47,7 +47,7 @@ flowchart LR
 - **Every match gets a card at the right depth.** Score 7+: tailored resume and full kit. Score 6: a card
   with the standard resume, ready to apply. Lower: one tap moves it to Active.
 - **One-tap tracking.** Each dashboard row has signed Move links (Applied, Interviewing, Offer, Rejected,
-  Skip, back to Active) served by the MCP server, plus a batch page to move many jobs at once. Each link
+  Skip, back to Active) served by the MCP server, plus a quick view that opens job links in new tabs, filters by application site and moves many jobs at once. Each link
   can only do the one move it was made for.
 - **Ready for long application forms.** Every card splits the resume it uses into each job's title, dates
   and description, plus skills and certifications, for Workday-style forms.
@@ -64,7 +64,7 @@ More detail: **[docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md)**.
 | `mcp-server/` | The MCP server (TypeScript, Cloudflare Workers): JSON-RPC over Streamable HTTP, secret-key auth |
 | `.github/workflows/` | Scan, apply Claude's work, status updates, Move links, batch moves, add a job, quiz, board finder, deploy, tests, reset |
 | `.github/ISSUE_TEMPLATE/` | The preferences quiz and "Add a job" forms |
-| `tests/`, `mcp-server/test/` | 135 tests: 108 for the pipeline, 27 for the server. Nothing real is called. |
+| `tests/`, `mcp-server/test/` | 137 tests: 109 for the pipeline, 28 for the server. Nothing real is called. |
 
 ```bash
 pip install -r requirements.txt pytest && pytest -q

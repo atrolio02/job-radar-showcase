@@ -1,6 +1,6 @@
 // Tests with a fake GitHub API, so nothing real is called.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import worker, { batchSignature, moveSignature, promoteSignature, safeEqual } from "../src/index";
+import worker, { batchSignature, moveSignature, promoteSignature, safeEqual, siteOf } from "../src/index";
 
 const SECRET = "s".repeat(40);
 const env = { MCP_SECRET: SECRET, GITHUB_TOKEN: "ghp_test", GITHUB_REPO: "me/job-radar" };
@@ -296,7 +296,7 @@ describe("dashboard Move links", () => {
     const sig = await batchSignature(SECRET);
     const pageResp = await link(`/batch/${sig}`);
     const html = await pageResp.text();
-    expect(html).toMatch(/Move several jobs/);
+    expect(html).toMatch(/quick view/);
     expect(html).toMatch(/value="#7"/);   // Acme, active
     expect(html).toMatch(/value="#9"/);   // Beta, applied
     const body = new URLSearchParams([["pick", "#7"], ["pick", "#9"], ["pick", "#99"], ["to", "skip"]]);
@@ -315,5 +315,13 @@ describe("dashboard Move links", () => {
     const post = calls.find((c) => c.method === "POST")!;
     expect(post.body).toEqual({ ref: "main", inputs: { job: "J-1a2b3c,J-4d5e6f" } });
     expect((await link(`/batch/${"0".repeat(32)}`)).status).toBe(404);
+  });
+
+  it("names each job's application site", () => {
+    expect(siteOf({ url: "https://job-boards.greenhouse.io/x/jobs/1" })).toBe("Greenhouse");
+    expect(siteOf({ url: "https://www.example.com/careers/job?gh_jid=5" })).toBe("Greenhouse");
+    expect(siteOf({ url: "https://acme.wd1.myworkdayjobs.com/en-US/External/job/1" })).toBe("Workday");
+    expect(siteOf({ url: "https://careers.example.com/1", source: "ashby" })).toBe("Ashby");
+    expect(siteOf({ url: "https://www.example.org/jobs/2" })).toBe("example.org");
   });
 });

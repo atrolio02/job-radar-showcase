@@ -204,41 +204,78 @@ async function shortId(key: string): Promise<string> {
   return "J-" + [...new Uint8Array(hash)].slice(0, 3).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-type JobRec = { key?: string; company?: string; title?: string; score?: number; status?: string; issue_number?: number };
+type JobRec = { key?: string; company?: string; title?: string; score?: number; status?: string; issue_number?: number;
+  url?: string; source?: string; location?: string; pay_text?: string; issue_url?: string };
+
+const SITES: [string, string][] = [["greenhouse.io", "Greenhouse"], ["gh_jid=", "Greenhouse"], ["ashbyhq.com", "Ashby"],
+  ["lever.co", "Lever"], ["myworkdayjobs.com", "Workday"], ["smartrecruiters.com", "SmartRecruiters"],
+  ["oraclecloud.com", "Oracle"], ["linkedin.com", "LinkedIn"], ["indeed.com", "Indeed"]];
+const SOURCE_SITES: Record<string, string> = { greenhouse: "Greenhouse", ashby: "Ashby", lever: "Lever", workday: "Workday",
+  smartrecruiters: "SmartRecruiters", oracle: "Oracle" };
+
+/** Which application site a job's link goes to (same rules as the dashboard). */
+export function siteOf(j: JobRec): string {
+  const url = (j.url || "").toLowerCase();
+  for (const [marker, name] of SITES) if (url.includes(marker)) return name;
+  if (j.source && SOURCE_SITES[j.source]) return SOURCE_SITES[j.source];
+  return url.split("//").pop()!.split("/")[0].replace(/^www\./, "") || "Other";
+}
+
+const safeUrl = (u?: string) => (u && /^https:\/\//i.test(u) ? escape(u) : "");
 
 async function batchPage(env: Env, sig: string, note = ""): Promise<Response> {
   const data = await new GitHub(env).readJson<{ jobs: Record<string, JobRec> }>("data/jobs.json");
-  const jobs = Object.entries(data.jobs).map(([key, j]) => ({ ...j, key }));
-  const row = async (j: JobRec & { key: string }) => {
+  const jobs = Object.entries(data.jobs).map(([key, j]) => ({ ...j, key, site: siteOf(j) }));
+  const row = async (j: JobRec & { key: string; site: string }) => {
     const id = j.issue_number ? `#${j.issue_number}` : await shortId(j.key);
-    return `<label><input type="checkbox" name="pick" value="${id}"><b>${id}</b> · ${j.score ?? "–"} · ` +
-      `${escape(j.title || "")} <span>${escape(j.company || "")}${j.status && j.status !== "new" ? " · " + escape(j.status) : ""}</span></label>`;
+    const link = safeUrl(j.url);
+    const title = link ? `<a href="${link}" target="_blank" rel="noopener">${escape(j.title || "")}</a>` : escape(j.title || "");
+    const card = safeUrl(j.issue_url) ? ` · <a href="${safeUrl(j.issue_url)}" target="_blank" rel="noopener">card</a>` : "";
+    return `<div class="job" data-site="${escape(j.site)}"><label><input type="checkbox" name="pick" value="${id}"></label>` +
+      `<div><b>${id}</b> · <span class="score">${j.score ?? "–"}</span> · ${title} <span class="site">${escape(j.site)}</span><br>` +
+      `<span class="meta">${escape(j.company || "")}${j.location ? " · " + escape(j.location.slice(0, 50)) : ""}` +
+      `${j.pay_text ? " · " + escape(j.pay_text.slice(0, 30)) : ""}` +
+      `${j.status && j.status !== "new" ? " · " + escape(j.status) : ""}${card}</span></div></div>`;
   };
-  const section = async (title: string, list: (JobRec & { key: string })[], hint = "") =>
+  const bySite = (a: { site: string; score?: number }, b: { site: string; score?: number }) =>
+    a.site.localeCompare(b.site) || (b.score ?? 0) - (a.score ?? 0);
+  const section = async (title: string, list: (JobRec & { key: string; site: string })[], hint = "") =>
     `<h3>${title} (${list.length})</h3>${hint}` +
-    (list.length ? (await Promise.all(list.map(row))).join("") : "<p><i>Nothing here.</i></p>");
-  const byScore = (a: JobRec, b: JobRec) => (b.score ?? 0) - (a.score ?? 0);
-  const active = jobs.filter((j) => j.status === "new").sort(byScore);
-  const applied = jobs.filter((j) => APPLIED.includes(j.status || "")).sort(byScore);
-  const closed = jobs.filter((j) => DONE.includes(j.status || "")).sort(byScore);
-  const lower = jobs.filter((j) => !j.status && typeof j.score === "number").sort(byScore).slice(0, 50);
+    (list.length ? (await Promise.all(list.sort(bySite).map(row))).join("") : "<p><i>Nothing here.</i></p>");
+  const active = jobs.filter((j) => j.status === "new");
+  const applied = jobs.filter((j) => APPLIED.includes(j.status || ""));
+  const closed = jobs.filter((j) => DONE.includes(j.status || ""));
+  const lower = jobs.filter((j) => !j.status && typeof j.score === "number")
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 50);
+  const counts = new Map<string, number>();
+  for (const j of [...active, ...applied, ...closed, ...lower]) counts.set(j.site, (counts.get(j.site) || 0) + 1);
+  const chips = [`<button type="button" class="chip on" data-filter="">All</button>`,
+    ...[...counts.entries()].sort((a, b) => b[1] - a[1]).map(([name, n]) =>
+      `<button type="button" class="chip" data-filter="${escape(name)}">${escape(name)} (${n})</button>`)].join("");
   const btn = (to: string, label: string) => `<button name="to" value="${to}">${label}</button>`;
   const html =
-    `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Move jobs</title>` +
-    `<style>body{font-family:system-ui;max-width:42rem;margin:0 auto;padding:1rem 1rem 7rem;line-height:1.4}` +
-    `label{display:block;padding:.55rem .3rem;border-bottom:1px solid #ddd}label span{color:#666}` +
-    `input{margin-right:.5rem;transform:scale(1.3)}.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;` +
-    `border-top:1px solid #ccc;padding:.6rem;display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center}` +
-    `button{font-size:1rem;padding:.5rem .7rem;border-radius:.5rem;border:1px solid #888;background:#f5f5f5}` +
-    `.note{background:#e8f5e9;padding:.6rem;border-radius:.5rem}</style>` +
-    `<h2>☑️ Move several jobs</h2>${note ? `<p class="note">${note}</p>` : ""}` +
-    `<p>Tick the jobs, then tap where they go. Up to ${BATCH_MAX} cards per tap.</p>` +
+    `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Job Radar quick view</title>` +
+    `<style>body{font-family:system-ui;max-width:46rem;margin:0 auto;padding:1rem 1rem 7rem;line-height:1.4}` +
+    `.job{display:flex;gap:.5rem;padding:.55rem .3rem;border-bottom:1px solid #ddd}.meta{color:#666;font-size:.9rem}` +
+    `.site{font-size:.75rem;background:#eef;border-radius:.4rem;padding:.05rem .4rem;margin-left:.2rem}` +
+    `.score{font-weight:600}input{transform:scale(1.3);margin-top:.3rem}` +
+    `.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0}.chip{font-size:.85rem;padding:.3rem .6rem;border-radius:1rem;` +
+    `border:1px solid #999;background:#fff}.chip.on{background:#222;color:#fff}` +
+    `.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #ccc;padding:.6rem;display:flex;` +
+    `flex-wrap:wrap;gap:.4rem;justify-content:center}.bar button{font-size:1rem;padding:.5rem .7rem;border-radius:.5rem;` +
+    `border:1px solid #888;background:#f5f5f5}.note{background:#e8f5e9;padding:.6rem;border-radius:.5rem}</style>` +
+    `<h2>⚡ Job Radar quick view</h2>${note ? `<p class="note">${note}</p>` : ""}` +
+    `<p>Job links open in a new tab. Filter by site to apply to one kind in a row, tick jobs, then tap where they ` +
+    `go. Up to ${BATCH_MAX} cards per tap.</p><div class="chips">${chips}</div>` +
     `<form method="post">` +
     (await section("Active", active)) + (await section("Applied", applied)) + (await section("Closed out", closed)) +
     (await section("Lower-scoring (no card yet)", lower,
       "<p><small>These can only go to Active (they get a card with your standard resume).</small></p>")) +
     `<div class="bar">${btn("applied", "📨 Applied")}${btn("interviewing", "🗣️ Interviewing")}${btn("offer", "🎉 Offer")}` +
-    `${btn("rejected", "✖️ Rejected")}${btn("skip", "⏭️ Skip")}${btn("active", "↩️ Active")}</div></form>`;
+    `${btn("rejected", "✖️ Rejected")}${btn("skip", "⏭️ Skip")}${btn("active", "↩️ Active")}</div></form>` +
+    `<script>document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{document.querySelectorAll(".chip")` +
+    `.forEach(x=>x.classList.toggle("on",x===c));const f=c.dataset.filter;document.querySelectorAll(".job")` +
+    `.forEach(r=>{const show=!f||r.dataset.site===f;r.style.display=show?"":"none";if(!show)r.querySelector("input").checked=false})})</script>`;
   return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store",
     "X-Robots-Tag": "noindex" } });
 }
