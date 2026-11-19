@@ -2,7 +2,7 @@
 
 # 📡 Job Radar
 
-_Updated Nov 18, 2026 17:58 UTC · 5 matching jobs seen · 5 scored by AI · 4 strong matches_
+_Updated Nov 19, 2026 05:11 UTC · 5 matching jobs seen · 5 scored by AI · 4 strong matches_
 
 🆕 New **2** → 📨 Applied **1** → 🗣️ Interviewing **1** → 🎉 Offer **0**
 
@@ -36,6 +36,16 @@ _Scored under 6, so no card yet. Tap **➕ Move to active** to make one (standar
 | Job ID | Move to (one tap) | Score | Company | Role | Site | Location | Pay | Status | Posted | Tracker |
 |:-:|---|:-:|---|---|---|---|---|---|---|:-:|
 | **J-203260** |  | **6** | Northwind AI | [Solutions Engineer](https://example.com/jobs/northwind-ai/se-3) | Ashby | Austin, TX | $118,000 - $145,000 |   | 2026-11-05 |  |
+
+</details>
+
+<details><summary>🔎 Companies to check by hand (the radar can't read their job sites)</summary>
+
+_Each link is a LinkedIn job search for your roles near you. Found a good one? [➕ Add it](../../../issues/new?template=add-job.yml) for the full kit._
+
+**Big employers on Workday:** [Example Cloud Co](https://www.linkedin.com/jobs/search/?keywords=Example%20Cloud%20Co%20solutions%20OR%20GTM%20OR%20sales%20engineer&location=Austin%2C%20Texas) · [Example Security Inc](https://www.linkedin.com/jobs/search/?keywords=Example%20Security%20Inc%20solutions%20OR%20GTM%20OR%20sales%20engineer&location=Austin%2C%20Texas)
+
+**Local companies:** [Example Energy](https://www.linkedin.com/jobs/search/?keywords=Example%20Energy%20solutions%20OR%20GTM%20OR%20sales%20engineer&location=Austin%2C%20Texas) · [Example Utilities](https://www.linkedin.com/jobs/search/?keywords=Example%20Utilities%20solutions%20OR%20GTM%20OR%20sales%20engineer&location=Austin%2C%20Texas)
 
 </details>
 

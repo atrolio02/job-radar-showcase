@@ -80,3 +80,12 @@ def test_site_column_names_the_application_site():
     assert dashboard.site({"url": "https://acme.wd1.myworkdayjobs.com/job/1"}) == "Workday"
     assert dashboard.site({"url": "https://careers.example.com/1", "source": "ashby"}) == "Ashby"
     assert dashboard.site({"url": "https://www.example.org/jobs/2"}) == "example.org"
+
+
+def test_manual_watch_links_each_company_to_a_linkedin_search(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "config.yml").write_text(
+        "manual_watch:\n  keywords: operations\n  location: Austin, Texas\n  groups:\n    Energy: [Acme Oil, Globex]\n")
+    md = dashboard.render(data(), prof={"quiz_completed": True})
+    assert "Companies to check by hand" in md and "**Energy:**" in md
+    assert "[Acme Oil](https://www.linkedin.com/jobs/search/?keywords=Acme%20Oil%20operations&location=Austin%2C%20Texas)" in md

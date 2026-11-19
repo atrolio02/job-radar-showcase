@@ -100,3 +100,12 @@ standard_resume_pdf: resumes/standard/Jordan_Rivera_Resume.pdf
 # Set this to your server's address once it's deployed (docs/MCP_SERVER.md). Without it, the links open
 # a short prefilled form instead.
 # move_links: https://job-radar-mcp.YOUR-SUBDOMAIN.workers.dev
+
+# Companies the radar can't read (Workday, own career sites). The dashboard lists them with a LinkedIn job
+# search for each, using these keywords and your area. Paste anything good into "Add a job" for a full kit.
+manual_watch:
+  keywords: "solutions OR GTM OR sales engineer"
+  location: "Austin, Texas"
+  groups:
+    Big employers on Workday: [Example Cloud Co, Example Security Inc]
+    Local companies: [Example Energy, Example Utilities]

@@ -61,6 +61,28 @@ def promote_link(key: str) -> str:
     return ""
 
 
+def _manual_watch() -> list[str]:
+    """Companies the radar can't read, each with a LinkedIn job search (config.yml manual_watch)."""
+    try:
+        import yaml
+        mw = (yaml.safe_load(Path("config.yml").read_text()) or {}).get("manual_watch") or {}
+    except (OSError, ValueError):
+        return []
+    groups = mw.get("groups") or {}
+    if not groups:
+        return []
+    from urllib.parse import quote
+    kw, where = mw.get("keywords", ""), mw.get("location", "")
+    out = ["", "<details><summary>🔎 Companies to check by hand (the radar can't read their job sites)</summary>", "",
+           "_Each link is a LinkedIn job search for your roles near you. Found a good one? "
+           f"[➕ Add it]({_repo_link('issues/new?template=add-job.yml')}) for the full kit._", ""]
+    for group, names in groups.items():
+        links = [f"[{n}](https://www.linkedin.com/jobs/search/?keywords={quote(f'{n} {kw}'.strip())}"
+                 f"&location={quote(where)})" for n in names or []]
+        out += [f"**{group}:** " + " · ".join(links), ""]
+    return out + ["</details>"]
+
+
 def batch_link() -> str:
     """The page for moving several jobs at once (signed like the other links)."""
     secret, base = os.environ.get("MOVE_LINK_SECRET", "").strip(), _move_base()
@@ -172,6 +194,7 @@ def render(data: dict, now: datetime | None = None, prof: dict | None = None) ->
         *_table([j for j in scored if not j.get("status")][:50], buttons=True),
         "",
         "</details>",
+        *_manual_watch(),
         "",
         "---",
         "How this works: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md) · "

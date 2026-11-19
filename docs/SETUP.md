@@ -45,8 +45,9 @@ Open `config.yml` and edit the `companies:` list. Job Radar reads five job-board
 job boards**. It tries each name on every system and logs the ones with open jobs and how many, so you can
 add them in bulk. Boards are read in parallel; hundreds of companies take a few minutes.
 
-Companies on other systems (Workday and custom career sites) can't be watched, but you can still paste any
-job into **Add a job** (step 8) to get the full kit.
+Companies on other systems (Workday and custom career sites) can't be watched. List them under
+`manual_watch:` in `config.yml` and the dashboard shows each one with a LinkedIn job search for your roles
+and area; paste any good job into **Add a job** (step 8) to get the full kit.
 
 ## 4. Discord alerts (3 minutes)
 
