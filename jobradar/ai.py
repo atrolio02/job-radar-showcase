@@ -157,6 +157,7 @@ def clean_score(result: dict) -> dict:
         "gaps": [str(g) for g in as_list(result.get("gaps"))][:3],
         "role_family": result.get("role_family") if result.get("role_family") in ROLE_FAMILIES else "other",
         "tags": sorted({str(t).lower() for t in as_list(result.get("tags")) if str(t).lower() in TAGS}),
+        **({"uses_extra_experience": True} if result.get("uses_extra_experience") is True else {}),
     }
 
 

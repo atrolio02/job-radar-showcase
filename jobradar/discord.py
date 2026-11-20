@@ -50,7 +50,7 @@ def send(payload: dict, attachment: str | None = None) -> bool:
 
 def job_alert(job: dict, issue_url: str | None) -> dict:
     """Build the message for a new strong match."""
-    s = job["score"]
+    s = job.get("score")  # None for jobs added by hand without a score
     lines = [job.get("summary", "")]
     if job.get("strengths"):
         lines += ["", "**Why you fit**"] + [f"• {x}" for x in job["strengths"]]
@@ -73,10 +73,10 @@ def job_alert(job: dict, issue_url: str | None) -> dict:
     return {
         "username": "Job Radar",
         "embeds": [{
-            "title": _clip(f"{s}/10 · {job['title']} at {job['company']}", 256),
+            "title": _clip((f"{s}/10 · " if s is not None else "") + f"{job['title']} at {job['company']}", 256),
             "url": job.get("url") or None,
             "description": _clip("\n".join(lines), 4000),
-            "color": GREEN if s >= 8 else YELLOW,
+            "color": GREEN if (s or 0) >= 8 else YELLOW,
             "fields": fields,
         }],
     }

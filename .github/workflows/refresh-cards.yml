@@ -1,0 +1,50 @@
+name: Refresh cards
+
+# Rewrites the cards listed in data/refresh_cards.txt (title, score and text) and the dashboard.
+# Used after Claude re-scores jobs that already have cards.
+on:
+  push:
+    branches: [main]
+    paths: [data/refresh_cards.txt]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: job-radar-rebase
+  cancel-in-progress: false
+
+env:
+  MOVE_LINK_SECRET: ${{ secrets.MCP_SECRET }}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rewrite the listed cards and the dashboard
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m jobradar.rebase --cards
+      - name: Save the dashboard
+        run: |
+          git config user.name "job-radar-bot"
+          git config user.email "job-radar-bot@users.noreply.github.com"
+          git add README.md
+          git diff --cached --quiet && exit 0
+          git commit -q -m "Dashboard after re-score"
+          for i in 1 2 3 4 5 6 7 8; do
+            git push -q origin HEAD:main && exit 0
+            sleep $((RANDOM % 5 + 1)); git pull -q --rebase origin main
+          done
+          exit 1

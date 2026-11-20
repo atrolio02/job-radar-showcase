@@ -10,7 +10,7 @@ from pathlib import Path
 
 import requests
 
-from . import discord, forms, github_api, profile, store, telemetry
+from . import refit, discord, forms, github_api, profile, store, telemetry
 
 ARRANGEMENTS = {"Remote": "remote", "Hybrid": "hybrid", "On-site": "onsite"}
 
@@ -88,6 +88,7 @@ def handle(event: dict, profile_path: Path = profile.DEFAULT_PATH,
     profile.save(prof, profile_path)
     data = store.load(data_path)
     rescore_unalerted(data)
+    refit.queue(data, "preferences changed")
     store.save(data, data_path)
 
     message = describe(prof)

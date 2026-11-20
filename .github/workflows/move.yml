@@ -43,14 +43,16 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           branch=$(git rev-parse --abbrev-ref HEAD)
           for attempt in 1 2 3 4 5 6 7 8; do
-            git add -A data/jobs.json README.md data/health
+            git add -A data/jobs.json README.md data/health resumes
             git diff --cached --quiet && exit 0
             git commit -q -m "Moved a job (form #${{ github.event.issue.number }})"
             git push -q && exit 0
             cp data/jobs.json "$RUNNER_TEMP/ours.json"
             cp -r data/health "$RUNNER_TEMP/" 2>/dev/null || true
+            cp -r resumes/applied "$RUNNER_TEMP/applied" 2>/dev/null || true
             sleep $((RANDOM % 5 + 1)); git fetch -q origin "$branch" && git reset -q --hard "origin/$branch"
             cp -r "$RUNNER_TEMP/health" data/ 2>/dev/null || true
+            mkdir -p resumes && cp -r "$RUNNER_TEMP/applied" resumes/ 2>/dev/null || true
             python -m jobradar.merge "$RUNNER_TEMP/ours.json"
             python -m jobradar.health --write > /dev/null || true
           done

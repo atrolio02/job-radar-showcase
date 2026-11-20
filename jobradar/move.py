@@ -14,7 +14,7 @@ from pathlib import Path
 
 import requests
 
-from . import dashboard, discord, github_api, store, telemetry
+from . import dashboard, freeze, discord, github_api, store, telemetry
 
 TITLE = re.compile(r"move\s+#?(\d+)\s+to\s+(new|active|applied|interviewing|offer|rejected|skip)", re.I)
 STATUS_LABELS = set(store.LABEL_PRIORITY)
@@ -36,6 +36,9 @@ def move(data: dict, number: int, new: str) -> tuple[dict | None, str | None]:
     old = job.get("status", "new")
     if old != new:
         job["status"] = new
+        if new in freeze.APPLIED_STATUSES:
+            if freeze.freeze(job):  # keep the exact resume this application went out with
+                freeze.refresh(job)
         job.setdefault("history", []).append(
             {"status": new, "at": datetime.now(timezone.utc).isoformat(timespec="seconds")})
     return job, old

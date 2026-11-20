@@ -37,6 +37,7 @@ def auto_cards(data: dict, cfg: dict, prof: dict, problems: list, limit: int | N
     low, high = int(cfg.get("card_min_score", 6)), int(cfg.get("alert_min_score", 7))
     limit = limit if limit is not None else int(cfg.get("ai", {}).get("max_cards_per_run", 15))
     picked = sorted((r for r in data["jobs"].values() if not r.get("status") and not r.get("duplicate_of")
+                     and not r.get("force_kit")  # getting a tailored resume instead (extra experience)
                      and low <= (r.get("score") or 0) < high), key=lambda r: -(r.get("score") or 0))
     for rec in picked[:limit]:
         standard_card(rec, data, cfg, prof, problems)

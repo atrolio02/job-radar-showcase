@@ -193,6 +193,11 @@ def build(job, base_docx: Path, out_dir: Path, file_stem: str, model: str, asked
     """Make the tailored Word file and one-page PDF. Returns paths and notes.
     `asked` is rewrites Claude already wrote (through the MCP server); otherwise the API is asked."""
     full = resume_text(base_docx)
+    try:  # facts from the profile's extra_experience may be used in rewrites
+        from . import profile
+        full += profile.extra_experience_text()
+    except Exception:  # noqa: BLE001
+        pass
     summary, bullets = editable_parts(base_docx)
     if asked is None:
         asked = ask_claude(job, full, summary, bullets, model)

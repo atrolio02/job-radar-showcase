@@ -27,6 +27,11 @@ def merge(ours: dict, theirs: dict) -> dict:
         if len(b.get("history", [])) > len(a.get("history", [])):
             # ...except status, where the side with more recorded changes is newer.
             rec["status"], rec["history"] = b.get("status"), b["history"]
+        frozen = a if a.get("resume_frozen") else b if b.get("resume_frozen") else None
+        if frozen:  # an applied job keeps the exact resume files it was sent with
+            for f in ("resume_frozen", "tailored_resume", "standard_pdf", "standard_docx", "standard_resume"):
+                if f in frozen:
+                    rec[f] = frozen[f]
         merged["jobs"][key] = rec
     # Company snapshots: keep both sides, newest wins.
     companies = {**theirs.get("companies", {})}

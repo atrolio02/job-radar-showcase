@@ -127,6 +127,11 @@ export const TOOLS: Tool[] = [
               gaps: strList(3, 200),
               role_family: { ...str(40), description: "One of role_families from get_briefing." },
               tags: { ...strList(8, 40), description: "3-8 tags from the tags list in get_briefing." },
+              uses_extra_experience: {
+                type: "boolean",
+                description: "True when the job asks for something only in the resume's ADDITIONAL VERIFIED " +
+                  "EXPERIENCE. A job scoring 6 then gets a tailored resume that includes it, not the standard one.",
+              },
             },
           },
         },

@@ -70,10 +70,11 @@ def _standard_pdf() -> str:
 
 def _tailored(job: dict) -> list[str]:
     tr = job.get("tailored_resume")
-    if not tr and job.get("standard_resume"):
-        return ["", "## 📄 Resume", "",
-                f"**[Download PDF]({file_link(_standard_pdf())})** · [Word version]({file_link('resume.docx')})", "",
-                "_This job scored under 7, so it uses your standard resume (no tailoring)._"]
+    if not tr and (job.get("standard_resume") or job.get("standard_pdf")):
+        pdf, docx = job.get("standard_pdf") or _standard_pdf(), job.get("standard_docx") or "resume.docx"
+        note = ("_Frozen: this is the exact standard resume you applied with._" if job.get("resume_frozen")
+                else "_This job scored under 7, so it uses your standard resume (no tailoring)._")
+        return ["", "## 📄 Resume", "", f"**[Download PDF]({file_link(pdf)})** · [Word version]({file_link(docx)})", "", note]
     if not tr:
         return []
     if tr.get("reused"):
@@ -157,7 +158,8 @@ def _kit(job: dict, prof: dict) -> list[str]:
         out += ["", f"**{k}**"] + (["```", v, "```"] if v else ["_[fill in yourself]_"])
     tr = job.get("tailored_resume") or {}
     attach = (f"Attach your tailored resume ([PDF]({file_link(tr['pdf'])})). " if tr.get("pdf")
-              else f"Attach your standard resume ([PDF]({file_link(_standard_pdf())})). " if job.get("standard_resume")
+              else f"Attach your standard resume ([PDF]({file_link(job.get('standard_pdf') or _standard_pdf())})). "
+              if job.get("standard_resume") or job.get("standard_pdf")
               else "Attach your resume PDF. ")
     out += ["", attach + "Answer any demographic questions yourself."]
     if m.get("why_company"):
@@ -232,10 +234,13 @@ def create_issue(job: dict, prof: dict | None = None) -> tuple[int, str]:
     return data["number"], data["html_url"]
 
 
-def refresh_card(number: int, job: dict, prof: dict | None = None) -> None:
-    """Rewrite an existing card's text (keeps its title, labels and status)."""
-    r = requests.patch(f"{API}/repos/{_repo()}/issues/{number}", headers=_headers(), timeout=30,
-                       json={"body": issue_body(job, prof)})
+def refresh_card(number: int, job: dict, prof: dict | None = None, retitle: bool = False) -> None:
+    """Rewrite an existing card's text (keeps its labels and status; retitle=True also updates the
+    score in its title, after a re-score)."""
+    body = {"body": issue_body(job, prof)}
+    if retitle:
+        body["title"] = card_title(job)
+    r = requests.patch(f"{API}/repos/{_repo()}/issues/{number}", headers=_headers(), timeout=30, json=body)
     r.raise_for_status()
 
 

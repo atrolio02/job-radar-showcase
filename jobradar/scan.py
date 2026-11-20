@@ -94,7 +94,11 @@ def sibling(data: dict, key: str) -> str | None:
 def load_resume(path: str | Path) -> str:
     """Resume text for Claude: from resume.docx, or a plain-text file."""
     path = Path(path)
-    return tailor.resume_text(path) if path.suffix == ".docx" else path.read_text()
+    text = tailor.resume_text(path) if path.suffix == ".docx" else path.read_text()
+    try:
+        return text + profile.extra_experience_text()
+    except Exception:  # noqa: BLE001 - no profile (tests, first run): the resume alone
+        return text
 
 
 def default_resume_path() -> str:
@@ -269,6 +273,8 @@ def run(config_path: str = "config.yml", resume_path: str | None = None,
         info.pop("description")
         rec.update(info)
         rec["last_seen"] = _now()
+        if (rec.get("rescore_pending") or rec.get("retailor")) and not rec.get("pending_brief"):
+            rec["pending_brief"] = ai.clean_description(job.description, lastmile.KIT_CHARS)
 
     # Some job sites (Oracle) list only a summary: fetch the full posting for new matches only.
     with telemetry.stage("full descriptions"):

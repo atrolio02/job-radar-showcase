@@ -84,7 +84,7 @@ def parse(text: str) -> dict:
 
 def for_job(job: dict, base_docx: Path = Path("resume.docx")) -> dict | None:
     from . import tailor
-    path = Path((job.get("tailored_resume") or {}).get("docx") or base_docx)
+    path = Path((job.get("tailored_resume") or {}).get("docx") or job.get("standard_docx") or base_docx)
     if not path.exists():
         path = base_docx
     try:

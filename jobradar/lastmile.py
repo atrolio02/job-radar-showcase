@@ -28,7 +28,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from . import ai, dashboard, profile, scan, sources, store, tailor, telemetry
+from . import refit, ai, dashboard, profile, scan, sources, store, tailor, telemetry
 
 MCP_DIR = Path("data/mcp")
 BRIEF_CHARS = 2500   # what Claude reads to score a job
@@ -65,7 +65,9 @@ INSTRUCTIONS = {
     "scoring": ai.SCORE_SYSTEM + " Score each job on how well it fits the candidate (resume and preferences "
                "in this briefing): both whether his experience matches what they need, and whether the job "
                "matches what he wants. 7+ means worth applying; at most 4 if it clearly hits a deal-breaker "
-               "or pays well below his minimum. The rules_score is a free keyword pre-score; use your own judgment.",
+               "or pays well below his minimum. The rules_score is a free keyword pre-score; use your own judgment. "
+               "The resume ends with ADDITIONAL VERIFIED EXPERIENCE: true, and counted in the score, but not on "
+               "his standard resume. Set uses_extra_experience true when the posting asks for it.",
     "kit": ai.WRITE_SYSTEM + " Answer every application question from the resume and candidate facts. For a "
            "question with options, answer with one of the options exactly. If the facts don't cover it, answer "
            "\"[Fill in yourself]\". Skip demographic or voluntary self-identification questions. Bullets: 3, "
@@ -73,7 +75,9 @@ INSTRUCTIONS = {
            "asking the hiring leader for 15 minutes. linkedin_note: under 300 characters.",
     "tailoring": tailor.TAILOR_SYSTEM.replace(" Reply with JSON only.", "") + " Use the numbered bullets in "
                  "resume_parts. Rewrite the summary and at most 6 bullets, each about the same length or shorter, "
-                 "then list up to 6 things the posting wants that the resume doesn't show (don't add them).",
+                 "then list up to 6 things the posting wants that the resume doesn't show (don't add them). If the job "
+                 "asks for something in ADDITIONAL VERIFIED EXPERIENCE, work that fact into the summary or a "
+                 "related bullet; it's true, it just isn't on the standard resume.",
     "research": ai.RESEARCH_SYSTEM.replace(" Reply with JSON only.", "") + " Find the company's overall employee "
                 "rating, CEO approval and recommend-to-a-friend figures (Glassdoor, Indeed, Comparably), common "
                 "review themes, recent Reddit/X threads about working or interviewing there, and layoffs, lawsuits "
@@ -116,20 +120,25 @@ def _brief(rec: dict, chars: int) -> dict:
 
 
 def to_score(data: dict) -> list[dict]:
-    return sorted((r for r in data["jobs"].values() if r.get("queued_at") and "score" not in r
-                   and not r.get("status")), key=lambda r: -(r.get("rules_score") or 0))
+    new = [r for r in data["jobs"].values() if r.get("queued_at") and "score" not in r and not r.get("status")]
+    # Active cards sent back for a fresh score (resume or preferences changed), once the scan has their posting
+    again = [r for r in data["jobs"].values() if r.get("rescore_pending") and r.get("pending_brief")]
+    return sorted(new, key=lambda r: -(r.get("rules_score") or 0)) + again
 
 
 def to_build(data: dict) -> list[dict]:
-    return sorted((r for r in data["jobs"].values() if r.get("kit_pending") and not r.get("status")),
-                  key=lambda r: -r.get("score", 0))
+    return sorted((r for r in data["jobs"].values() if r.get("kit_pending")
+                   and (not r.get("status") or r.get("retailor"))), key=lambda r: -r.get("score", 0))
 
 
 def write_inbox(data: dict, cfg: dict, mcp_dir: Path = MCP_DIR) -> dict:
     ai_cfg = cfg.get("ai", {})
     limit = int(ai_cfg.get("max_jobs_scored_per_run", 25))
     cards = int(ai_cfg.get("max_cards_per_run", 5))
-    scoring = [{**_brief(r, BRIEF_CHARS), "research_needed": _research_needed(data, r, ai_cfg)}
+    scoring = [{**_brief(r, BRIEF_CHARS), "research_needed": _research_needed(data, r, ai_cfg),
+                **({"rescore": True, "current_score": r.get("score"),
+                    "note": "Active card: score it fresh against the current resume and preferences."}
+                   if r.get("rescore_pending") else {})}
                for r in to_score(data)]
     building = []
     for r in to_build(data)[:cards]:
@@ -149,21 +158,35 @@ def write_inbox(data: dict, cfg: dict, mcp_dir: Path = MCP_DIR) -> dict:
 
 
 # ── What Claude sends back ──────────────────────────────────────────────────
-def _apply_scores(items: list, data: dict, alert_min: int, problems: list) -> int:
+def _apply_scores(items: list, data: dict, alert_min: int, problems: list, card_min: int = 6) -> int:
     done = 0
     for item in items if isinstance(items, list) else []:
         rec = data["jobs"].get(str((item or {}).get("key", "")))
         if rec is None:
             problems.append(f"Claude scored a job Job Radar doesn't know: {item.get('key')!r}")
             continue
-        if "score" in rec:
-            continue  # already scored (a repeat submission)
+        again = bool(rec.get("rescore_pending"))
+        if not again and "score" in rec and (rec.get("scored_by") != "claude-mcp" or rec.get("status")):
+            continue  # scored another way, or already has a card
+        rescored = "score" in rec  # Claude correcting its own score before a card exists: latest one wins
+        before = rec.get("score")
         try:
             rec.update(ai.clean_score(item))
         except ai.AIError as e:
             problems.append(f"Score for {rec.get('title')} at {rec.get('company')} rejected: {e}")
             continue
         rec.update(scored_at=_now(), scored_by="claude-mcp")
+        # The job asks for experience that isn't on the standard resume: a card-worthy score gets a
+        # tailored resume that includes it, even under the alert score.
+        if item.get("uses_extra_experience") is True and rec["score"] >= card_min:
+            rec["force_kit"] = True
+            rec["uses_extra_experience"] = True
+        if again:  # an active card: maybe a tailored resume now, and a new title either way
+            rec.setdefault("score_history", []).append({"score": before, "at": rec.get("scored_at")})
+            rec.pop("force_kit", None)
+            refit.apply_rescore(rec, alert_min, card_min)
+            done += 1
+            continue
         rec.pop("queued_at", None)
         done += 1
         # Same role posted in several places: one score covers them all.
@@ -180,6 +203,8 @@ def _apply_scores(items: list, data: dict, alert_min: int, problems: list) -> in
                     rec["questions"] = scan.application_questions(job_from_record(rec))
         else:
             rec.pop("pending_brief", None)
+            if rescored:
+                rec.pop("kit_pending", None)  # lowered below the alert score: no kit after all
     return done
 
 
@@ -189,7 +214,7 @@ def _apply_kit(item: dict, data: dict, cfg: dict, prof: dict, resume: str, probl
     if rec is None:
         problems.append(f"Claude sent a kit for a job Job Radar doesn't know: {item.get('key')!r}")
         return False
-    if rec.get("status"):
+    if rec.get("status") and not rec.get("retailor"):
         return False  # card already made
     if "score" not in rec:
         problems.append(f"Kit for {rec.get('title')} at {rec.get('company')} arrived before its score; ignored.")
@@ -205,6 +230,9 @@ def _apply_kit(item: dict, data: dict, cfg: dict, prof: dict, resume: str, probl
         kit["research"] = ai.clean_snapshot(item["research"], rec.get("company", ""))
     if isinstance(item.get("tailoring"), dict):
         kit["tailoring"] = tailor.clean_tailoring(item["tailoring"])
+    if rec.get("retailor"):  # an active card earning a tailored resume after a re-score
+        refit.retailor_card(rec, data, kit, resume, cfg.get("ai", {}), prof, problems, base_docx, out_root)
+        return True
     scan.open_card(job_from_record(rec), rec, data, resume, cfg.get("ai", {}), prof, problems,
                    base_docx, out_root, kit=kit, use_ai=False)
     for k in ("kit_pending", "pending_brief", "questions", "force_kit"):
@@ -230,7 +258,8 @@ def apply_incoming(config_path: str = "config.yml", data_path: Path = store.DEFA
             kind = sub.get("kind")
             if kind == "scores":
                 with telemetry.stage("apply scores"):
-                    scored += _apply_scores(sub.get("items"), data, alert_min, problems)
+                    scored += _apply_scores(sub.get("items"), data, alert_min, problems,
+                                            int(cfg.get("card_min_score", 6)))
             elif kind == "kit":
                 with telemetry.stage("apply kit"):
                     kits += _apply_kit(sub, data, cfg, prof, resume, problems, base_docx, out_root)
@@ -245,6 +274,8 @@ def apply_incoming(config_path: str = "config.yml", data_path: Path = store.DEFA
     from . import promote  # imported here: promote builds on this module
     with telemetry.stage("standard cards"):
         promote.auto_cards(data, cfg, prof, problems)
+    with telemetry.stage("re-scored cards"):
+        refit.refresh_changed(data, prof, problems)
     with telemetry.stage("save"):
         store.save(data, data_path)
         dashboard.write(data, readme_path, prof)

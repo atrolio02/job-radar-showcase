@@ -69,6 +69,7 @@ DEFAULTS = {
     "areas": ["austin", "san marcos", "pflugerville", "round rock", "irving", "frisco", "richardson", "arlington"],
     "open_to_relocation": False,
     "min_base_salary": None,
+    "extra_experience": [],
     "target_total_comp": None,
     "salary_answer": "",
     "role_types": ["Sales / Solutions Engineer", "Solutions Architect / Consultant", "GTM / Growth Engineer"],
@@ -152,3 +153,14 @@ def summary_for_ai(prof: dict) -> str:
         if prof.get(key):
             lines.append(f"{label}: {prof[key]}")
     return "\n".join(lines)
+
+
+def extra_experience_text(prof: dict | None = None) -> str:
+    """The extra_experience list as text that follows the resume, for scoring and tailoring."""
+    prof = load() if prof is None else prof
+    rows = [f"- {e.get('role', '')}: {e.get('fact', '')}" for e in prof.get("extra_experience") or []
+            if isinstance(e, dict) and e.get("fact")]
+    if not rows:
+        return ""
+    return ("\n\nADDITIONAL VERIFIED EXPERIENCE (true, but not on the base resume; count it when scoring, "
+            "and use it in a tailored resume only when the job calls for it):\n" + "\n".join(rows))

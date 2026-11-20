@@ -89,3 +89,9 @@ def test_manual_watch_links_each_company_to_a_linkedin_search(monkeypatch, tmp_p
     md = dashboard.render(data(), prof={"quiz_completed": True})
     assert "Companies to check by hand" in md and "**Energy:**" in md
     assert "[Acme Oil](https://www.linkedin.com/jobs/search/?keywords=Acme%20Oil%20operations&location=Austin%2C%20Texas)" in md
+
+
+def test_unscored_job_gets_a_discord_alert():
+    from jobradar import discord
+    msg = discord.job_alert({"title": "FDE", "company": "Glean", "url": "https://x"}, None)
+    assert "FDE at Glean" in str(msg)

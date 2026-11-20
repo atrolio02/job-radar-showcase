@@ -14,7 +14,7 @@ from pathlib import Path
 
 import requests
 
-from . import dashboard, discord, github_api, store, telemetry
+from . import freeze, dashboard, discord, github_api, store, telemetry
 
 COMMAND = re.compile(r"^\s*/(applied|interviewing|offer|rejected|skip)\b", re.I)
 
@@ -61,6 +61,9 @@ def handle(event_name: str, event: dict, data_path: Path = store.DEFAULT_PATH,
         return None
 
     job["status"] = new
+    if new in freeze.APPLIED_STATUSES:
+        if freeze.freeze(job):  # keep the exact resume this application went out with
+            freeze.refresh(job)
     job.setdefault("history", []).append(
         {"status": new, "at": datetime.now(timezone.utc).isoformat(timespec="seconds")})
     store.save(data, data_path)

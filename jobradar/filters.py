@@ -57,9 +57,11 @@ _ELSEWHERE_NAMES = (
     "nicaragua nigeria norway oman pakistan panama paraguay peru philippines poland portugal qatar romania russia "
     "serbia singapore slovakia slovenia spain sweden switzerland taiwan tanzania thailand tunisia turkey turkiye "
     "uganda ukraine uruguay uzbekistan venezuela vietnam zambia zimbabwe uae uk england scotland wales emea apac "
+    "ontario quebec alberta manitoba saskatchewan newfoundland yukon "
     "latam europe european asia africa nordics dach benelux anz"
 ).split() + ["costa rica", "dominican republic", "el salvador", "hong kong", "new zealand", "saudi arabia",
-             "south africa", "sri lanka", "united arab emirates", "united kingdom", "middle east"]
+             "south africa", "sri lanka", "united arab emirates", "united kingdom", "middle east",
+             "british columbia", "nova scotia", "prince edward island"]  # Canadian provinces (not New Brunswick: also NJ)
 _ELSEWHERE = re.compile(r"(?<![a-z0-9])(?:" + "|".join(re.escape(n) for n in _ELSEWHERE_NAMES)
                         + r")(?![a-z0-9])", re.I)
 # Country codes as ATS boards write them: "BE-Belgium-Remote", "Remote - CA" is a state, so codes only at the start.

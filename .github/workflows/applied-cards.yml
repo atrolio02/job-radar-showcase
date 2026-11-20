@@ -1,0 +1,38 @@
+name: Applied cards
+
+# When the frozen resumes for jobs you've applied to change (resumes/applied/), rewrite those cards
+# from their frozen files, so each one shows exactly the resume that application went out with.
+on:
+  push:
+    branches: [main]
+    paths: ["resumes/applied/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: job-radar-rebase
+  cancel-in-progress: false
+
+env:
+  MOVE_LINK_SECRET: ${{ secrets.MCP_SECRET }}
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rewrite applied cards from their frozen resumes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m jobradar.rebase --frozen

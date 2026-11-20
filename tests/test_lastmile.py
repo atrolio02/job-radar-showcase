@@ -266,3 +266,23 @@ def test_focus_includes_sales_ops_and_supply_chain():
     assert not filters.focus_ok("Sourcing Specialist", "x", {}, prof)
     assert not filters.focus_ok("People Operations Specialist", "x", {}, prof)
     assert not filters.focus_ok("Recruiting and Sourcing Analyst", "x", {}, prof)
+
+
+def test_claude_can_correct_a_score_before_the_card_exists():
+    from jobradar import lastmile
+    data = {"jobs": {"k": {"key": "k", "company": "A", "title": "SE", "url": "https://x"}}}
+    item = {"key": "k", "score": 8, "summary": "first", "role_family": "sales engineer"}
+    lastmile._apply_scores([item], data, 7, [])
+    assert data["jobs"]["k"]["score"] == 8 and data["jobs"]["k"].get("kit_pending")
+    lastmile._apply_scores([{**item, "score": 6, "summary": "corrected"}], data, 7, [])
+    assert data["jobs"]["k"]["score"] == 6 and "kit_pending" not in data["jobs"]["k"]
+    data["jobs"]["k"]["status"] = "new"
+    lastmile._apply_scores([{**item, "score": 9}], data, 7, [])
+    assert data["jobs"]["k"]["score"] == 6  # has a card now: no silent change
+
+
+def test_canadian_provinces_are_not_us_remote():
+    from jobradar import filters
+    prof = {"home_location": {"city": "Austin, TX"}}
+    assert not filters.remote_us_ok("Remote, Ontario / Remote, British Columbia", prof, {})
+    assert filters.remote_us_ok("United States - Remote", prof, {})
